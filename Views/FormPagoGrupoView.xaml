@@ -1,0 +1,150 @@
+﻿<Window x:Class="SistemaInstituto.Views.FormPagoGrupoView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SistemaInstituto.Views" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:FormPagoGrupoViewModel}"
+        xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels"
+        xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Background="#FAFAFA"
+        FontFamily="Bahnschrift"
+        Title="Carga de pago grupal" Height="910" Width="500">
+
+    <Window.Resources>
+        <ut:BoolToVisibility x:Key="BoolToVisibility"/>
+        <ut:NullToBool x:Key="NullToBool"/>
+        <ut:SaldoColorConverter x:Key="SaldoColorConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Agregar un pago grupal" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1" VerticalAlignment="Top">
+            <!-- Grupo -->
+            <TextBlock Text="Grupo" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding Beneficios}" 
+                          SelectedItem="{Binding BeneficioSeleccionado, Mode=TwoWay}" 
+                          DisplayMemberPath="Nombre"
+                          FontSize="14"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"/>
+            </Border>
+
+            <!-- Alumnos del beneficio -->
+            <TextBlock Text="Alumnos del beneficio:" FontSize="16" Margin="0,0,0,5"/>
+            <DataGrid ItemsSource="{Binding Alumnos}" AutoGenerateColumns="False" Height="120"
+                      FontSize="14"
+                      ColumnWidth="*"
+                      Margin="0,0,0,10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width=".35*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                <Setter Property="TextWrapping" Value="NoWrap"/>
+                                <Setter Property="ToolTip" Value="{Binding Nombre}"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Curso" Binding="{Binding Curso}" Width=".275*" />
+                    <DataGridTextColumn Header="Aplica" Binding="{Binding Aplica}" Width=".175*"/>
+                    <DataGridTextColumn Header="Monto" Binding="{Binding MontoFinal, StringFormat={}{0:C}}" Width=".2*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Fecha de pago -->
+            <TextBlock Text="Fecha de pago" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <DatePicker SelectedDate="{Binding FechaPagoADateTime, Mode=TwoWay}" FontSize="14">
+                    <DatePicker.CalendarStyle>
+                        <Style TargetType="Calendar">
+                            <Setter Property="LayoutTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DatePicker.CalendarStyle>
+                </DatePicker>
+            </Border>
+
+            <!-- Arancel -->
+            <TextBlock Text="Arancel" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding ConceptosArancel}" 
+                          SelectedItem="{Binding ConceptoArancelSeleccionado, Mode=TwoWay}" 
+                          IsEnabled="{Binding BeneficioSeleccionado, Converter={StaticResource NullToBool}}"
+                          FontSize="14"/>
+            </Border>
+
+            <!-- Totales -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                <TextBlock Text="Monto calculado: " FontSize="16"/>
+                <TextBlock Text="{Binding TotalCalculado, StringFormat={}{0:C}}" 
+                           FontSize="16" FontWeight="SemiBold"
+                           Foreground="Gray"
+                           TextDecorations="Strikethrough"
+                           Visibility="{Binding EsDescontada, Converter={StaticResource BoolToVisibility}}"/>
+                <TextBlock Text="{Binding TotalSugerido, StringFormat={}{0:C}}"
+                           Margin="5,0,0,0"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Saldo actual total: " FontSize="16"/>
+                <TextBlock Text="{Binding SaldoVisualTotal, StringFormat={}{0:C}}" 
+                           FontSize="16" FontWeight="SemiBold"
+                           Foreground="{Binding SaldoVisualTotal, Converter={StaticResource SaldoColorConverter}}"/>
+            </StackPanel>
+
+            <!-- Monto -->
+            <TextBlock Text="Monto" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <TextBox Text="{Binding MontoPagado, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" FontSize="14"/>
+            </Border>
+
+            <!-- Concepto -->
+            <TextBlock Text="Concepto" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <TextBox Text="{Binding Concepto, UpdateSourceTrigger=PropertyChanged}" FontSize="14"/>
+            </Border>
+
+            <!-- Método de pago -->
+            <TextBlock Text="Método de Pago" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <ComboBox ItemsSource="{Binding MetodosPago}" 
+                          SelectedItem="{Binding MetodoPagoSeleccionado}" 
+                          IsEnabled="{Binding BeneficioSeleccionado, Converter={StaticResource NullToBool}}"
+                          DisplayMemberPath="Nombre"
+                          FontSize="14"/>
+            </Border>
+
+            <!-- Notas -->
+            <TextBlock Text="Notas" FontSize="16" Margin="0,0,0,5"/>
+            <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" Margin="0,0,0,10">
+                <TextBox Text="{Binding Notas, UpdateSourceTrigger=PropertyChanged}" 
+                         FontSize="14" 
+                         AcceptsReturn="True" 
+                         TextWrapping="Wrap"
+                         />
+            </Border>
+        </StackPanel>
+
+        <!-- Botones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Guardar" Command="{Binding GuardarCommand}" Width="100" Height="38" Style="{StaticResource BotonGuardar}" Margin="0,0,10,0"/>
+            <Button Content="Cancelar" Width="100" Height="38" Background="#EBEBEB" Foreground="Black" FontWeight="SemiBold" BorderThickness="0" Click="Cancelar_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

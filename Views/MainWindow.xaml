@@ -1,0 +1,89 @@
+﻿<Window x:Class="SistemaInstituto.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:SistemaInstituto.Views"
+        xmlns:vm="clr-namespace:SistemaInstituto.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        WindowStartupLocation="CenterScreen"
+        Title="Sistema Instituto Mandela" Width="1280" Height="800"
+        FontFamily="Bahnschrift">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="175"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Panel lateral -->
+        <Border Grid.Column="0" Background="#28A498" Margin="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Título -->
+                <TextBlock Text="Menú"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Margin="10"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+
+                <!-- Botones -->
+                <StackPanel Grid.Row="1" Margin="10">
+                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarAlumnosCommand}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Account" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Ver alumnos"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarPagosCommand}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="NotebookOutline" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Ver pagos"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarArancelesCommand}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="CurrencyUsd" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Ver aranceles"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarBeneficiosCommand}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="AccountGroup" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Ver beneficios"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Background="#ACECE5" Command="{Binding MostrarSeleccionPagoCommand}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Agregar pago"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Versión -->
+                <TextBlock Grid.Row="2"
+                           Text="v1.0"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Bottom"
+                           Margin="0,0,0,10"/>
+            </Grid>
+        </Border>
+
+        <!-- Contenido dinámico -->
+        <ContentControl Grid.Column="1" Content="{Binding VistaActual}"/>
+    </Grid>
+</Window>

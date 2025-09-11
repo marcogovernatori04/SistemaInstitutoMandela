@@ -1,0 +1,50 @@
+﻿<Window x:Class="SistemaInstituto.Views.SeleccionPagoView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SistemaInstituto.Views" 
+        xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        d:DataContext="{d:DesignInstance Type=viewmodels:SeleccionPagoViewModel}"
+        mc:Ignorable="d"
+        Title="Selección de pago" Height="180" Width="420"
+        FontFamily="Bahnschrift"
+        WindowStartupLocation="CenterScreen">
+
+    <StackPanel Margin="16">
+        <!-- Título -->
+        <TextBlock Text="Seleccione el tipo de pago:" 
+                   FontSize="20" FontWeight="SemiBold"
+                   Margin="0,0,0,16"
+                   HorizontalAlignment="Center"/>
+
+        <!-- Botones -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button FontSize="18" Width="170" Height="50"
+                    Padding="8"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding PagoNormalCommand}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="AccountOutline" Width="22" Height="22" 
+                                             Foreground="#28A498"
+                                             Margin="0,0,6,0"/>
+                    <TextBlock Text="Pago normal" FontWeight="Medium" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button FontSize="18" Width="170" Height="50"
+                    Padding="8"
+                    HorizontalContentAlignment="Center"
+                    Margin="12,0,0,0"
+                    Command="{Binding PagoBeneficioCommand}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" 
+                                             Foreground="#28A498"
+                                             Margin="0,0,6,0"/>
+                    <TextBlock Text="Pago grupal" FontWeight="Medium" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</Window>
