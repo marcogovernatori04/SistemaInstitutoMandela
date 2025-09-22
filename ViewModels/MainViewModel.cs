@@ -1,7 +1,9 @@
-﻿using SistemaInstituto.Commands;
+﻿using Microsoft.Win32;
+using SistemaInstituto.Commands;
+using SistemaInstituto.Generators;
+using SistemaInstituto.Interfaces;
 using SistemaInstituto.Views;
 using System.Windows.Input;
-
 namespace SistemaInstituto.ViewModels
 {
     public class MainViewModel : BaseViewModel
@@ -10,7 +12,11 @@ namespace SistemaInstituto.ViewModels
         public object VistaActual
         {
             get => _vistaActual;
-            set => SetProperty(ref _vistaActual, value);
+            set
+            {
+                SetProperty(ref _vistaActual, value);
+                (ExportarPdfCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
         }
 
         public ICommand MostrarAlumnosCommand { get; }
@@ -18,6 +24,7 @@ namespace SistemaInstituto.ViewModels
         public ICommand MostrarArancelesCommand { get; }
         public ICommand MostrarSeleccionPagoCommand { get; }
         public ICommand MostrarBeneficiosCommand { get; }
+        public ICommand ExportarPdfCommand { get; }
 
         public MainViewModel()
         {
@@ -26,6 +33,11 @@ namespace SistemaInstituto.ViewModels
             MostrarArancelesCommand = new RelayCommand(_ => VistaActual = new ArancelesViewModel());
             MostrarSeleccionPagoCommand = new RelayCommand(o => AbrirFormPago());
             MostrarBeneficiosCommand = new RelayCommand(_ => VistaActual = new BeneficiosViewModel());
+
+            ExportarPdfCommand = new RelayCommand(
+                _ => ExportarPdf(),
+                _ => VistaActual is IExportable
+            );
 
             VistaActual = new AlumnosViewModel();
         }
@@ -42,8 +54,26 @@ namespace SistemaInstituto.ViewModels
             {
                 VistaActual = new PagosViewModel();
             }
+        }
 
+        private void ExportarPdf()
+        {
+            if (VistaActual is not IExportable exportable)
+                return;
 
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "Archivos PDF (*.pdf)|*.pdf",
+                FileName = "export.pdf"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                var datos = exportable.GetExportableData();
+                PdfExporter.Exportar(saveDialog.FileName, datos);
+                System.Windows.MessageBox.Show("Exportación completada.", "Éxito", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+
+            }
         }
     }
 }

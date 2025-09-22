@@ -8,38 +8,33 @@
              FontFamily="Bahnschrift"
              d:DesignHeight="800" d:DesignWidth="1025">
 
-    <Grid Margin="20">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
+        <DockPanel Grid.Row="0" LastChildFill="False" Margin="0">
             <TextBlock Text="Listado de beneficios"
                        FontSize="24"
                        FontWeight="Bold"
                        VerticalAlignment="Center"
-                       Grid.Column="0"/>
+                       DockPanel.Dock="Left"/>
 
             <Button Content="Agregar beneficio"
                     Command="{Binding AgregarBeneficioCommand}"
-                    Width="180"
+                    MinWidth="160"
+                    Height="35"
                     FontSize="16"
-                    Height="30"
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    Grid.Column="1"/>
-        </Grid>
+                    DockPanel.Dock="Right"
+                    Margin="10,0,0,0"/>
+        </DockPanel>
 
         <!-- Filtros -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,10,0,10">
+        <WrapPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,10,0,10" ItemHeight="35">
             <TextBlock Text="Buscar:" 
                        Margin="5,0"
                        VerticalAlignment="Center"
@@ -49,14 +44,15 @@
                      FontSize="16"
                      VerticalAlignment="Center"
                      Margin="5,0"/>
-        </StackPanel>
+        </WrapPanel>
 
         <!-- DataGrid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding BeneficiosView}"
                   AutoGenerateColumns="False"
                   SelectedItem="{Binding BeneficioSeleccionado, Mode=TwoWay}"
-                  MouseDoubleClick="DataGrid_MouseDoubleClick">
+                  MouseDoubleClick="DataGrid_MouseDoubleClick"
+                  Margin="0,5,0,0">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>

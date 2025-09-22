@@ -28,4 +28,19 @@ public partial class Pago
     public virtual MetodoPago IdMetodoPagoNavigation { get; set; } = null!;
     public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
 
+
+    [Exportable]
+    public string Nombre => IdAlumnoNavigation?.Nombre;
+
+    [Exportable]
+    public string Curso => IdAlumnoNavigation?.IdCursoNavigation?.Nombre;
+
+    [Exportable]
+    public DateOnly Fecha => FechaPago;
+
+    [Exportable]
+    public decimal Monto => MontoPagado;
+
+
+
 }

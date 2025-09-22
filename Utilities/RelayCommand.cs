@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 
 namespace SistemaInstituto.Commands
 {
@@ -7,19 +8,18 @@ namespace SistemaInstituto.Commands
         private readonly Action<object?> _execute;
         private readonly Predicate<object?>? _canExecute;
 
+        public event EventHandler? CanExecuteChanged;
+
         public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object? parameter) => _canExecute == null || _canExecute(parameter);
+        public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
+
         public void Execute(object? parameter) => _execute(parameter);
 
-        public event EventHandler? CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

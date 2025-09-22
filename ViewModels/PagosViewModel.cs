@@ -10,10 +10,12 @@ using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using System.Globalization;
+using SistemaInstituto.Interfaces;
+using System.Collections;
 
 namespace SistemaInstituto.ViewModels
 {
-    public class PagosViewModel : BaseViewModel
+    public class PagosViewModel : BaseViewModel, IExportable
     {
 
         public RelayCommand SeleccionarPagoCommand { get; }
@@ -33,12 +35,12 @@ namespace SistemaInstituto.ViewModels
         public ICollectionView PagosView
         {
             get => _pagosView;
-            set 
-            { 
-                _pagosView = value; 
+            set
+            {
+                _pagosView = value;
                 OnPropertyChanged(nameof(PagosView));
                 OnPropertyChanged(nameof(CantRegistros));
-            
+
             }
         }
 
@@ -229,8 +231,12 @@ namespace SistemaInstituto.ViewModels
             PagosView.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalMontos));
             PagosView.CurrentChanged += (s, e) => OnPropertyChanged(nameof(TotalMontos));
 
+            PagosView.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CantRegistros));
+            PagosView.CurrentChanged += (s, e) => OnPropertyChanged(nameof(CantRegistros));
+
             PagosView.Refresh();
             OnPropertyChanged(nameof(TotalMontos));
+            OnPropertyChanged(nameof(CantRegistros));
         }
 
         private void CargarMeses()
@@ -319,6 +325,11 @@ namespace SistemaInstituto.ViewModels
                 FileName = rutaFactura,
                 UseShellExecute = true
             });
+        }
+
+        public IEnumerable GetExportableData()
+        {
+            return PagosView.Cast<Pago>();
         }
     }
 }

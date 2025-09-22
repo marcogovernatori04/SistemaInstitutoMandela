@@ -4,14 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
-        xmlns:local="clr-namespace:SistemaInstituto.Views" 
         xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels" 
         d:DataContext="{d:DesignInstance Type=viewmodels:FormAlumnoViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Carga de alumno" Height="600" Width="450"
+        Title="Carga de alumno"
+        MinWidth="400" MinHeight="500"
+        Width="500" Height="600"
         Background="#FAFAFA"
-        FontFamily="Bahnschrift">
+        FontFamily="Bahnschrift"
+        SizeToContent="Manual"
+        ResizeMode="CanResize">
 
     <Window.Resources>
         <ut:NullToVisibility x:Key="NullToVisibility" />
@@ -29,68 +32,76 @@
         <TextBlock Text="{Binding Titulo}" 
                    FontSize="24" 
                    FontWeight="SemiBold" 
-                   Margin="0,0,0,12"/>
+                   Margin="0,0,0,12"
+                   TextWrapping="Wrap"/>
 
         <!-- Campos -->
-        <StackPanel Grid.Row="1" VerticalAlignment="Top">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" MinWidth="300">
 
-            <!-- Nombre -->
-            <StackPanel>
-                <TextBlock Text="Nombre" FontSize="16" Margin="0,0,0,5"/>
-                <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                    <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="14"/>
-                </Border>
-            </StackPanel>
+                <!-- Nombre -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Nombre" FontSize="16" Margin="0,0,0,5"/>
+                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
+                        <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontSize="14" 
+                                 HorizontalAlignment="Stretch"/>
+                    </Border>
+                </StackPanel>
 
-            <!-- Curso -->
-            <StackPanel Margin="0,12,0,0">
-                <TextBlock Text="Curso" FontSize="16" Margin="0,0,0,5"/>
-                <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                    <ComboBox ItemsSource="{Binding Cursos}" 
-                              SelectedItem="{Binding CursoSeleccionado, Mode=TwoWay}" 
-                              DisplayMemberPath="Nombre"
-                              FontSize="14"/>
-                </Border>
-            </StackPanel>
+                <!-- Curso -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Curso" FontSize="16" Margin="0,0,0,5"/>
+                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
+                        <ComboBox ItemsSource="{Binding Cursos}" 
+                                  SelectedItem="{Binding CursoSeleccionado, Mode=TwoWay}" 
+                                  DisplayMemberPath="Nombre"
+                                  FontSize="14"
+                                  HorizontalAlignment="Stretch"/>
+                    </Border>
+                </StackPanel>
 
-            <!-- Estado -->
-            <StackPanel Margin="0,12,0,0">
-                <TextBlock Text="Estado" FontSize="16" Margin="0,0,0,5"/>
-                <Border Background="#EBEBEB" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1"
-                        Visibility="{Binding EsCreacion, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock Text="Activo" FontSize="14" Padding="2"/>
-                </Border>
-                <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1"
-                        Visibility="{Binding EsCreacion, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
-                    <ComboBox ItemsSource="{Binding Estados}" 
-                              SelectedItem="{Binding EstadoSeleccionado, Mode=TwoWay}" 
-                              DisplayMemberPath="Nombre"
-                              FontSize="14"/>
-                </Border>
-            </StackPanel>
+                <!-- Estado -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Estado" FontSize="16" Margin="0,0,0,5"/>
+                    <Border Background="#EBEBEB" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1"
+                            Visibility="{Binding EsCreacion, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Activo" FontSize="14" Padding="2"/>
+                    </Border>
+                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1"
+                            Visibility="{Binding EsCreacion, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                        <ComboBox ItemsSource="{Binding Estados}" 
+                                  SelectedItem="{Binding EstadoSeleccionado, Mode=TwoWay}" 
+                                  DisplayMemberPath="Nombre"
+                                  FontSize="14"
+                                  HorizontalAlignment="Stretch"/>
+                    </Border>
+                </StackPanel>
 
-            <!-- Teléfono -->
-            <StackPanel Margin="0,12,0,0">
-                <TextBlock Text="Teléfono" FontSize="16" Margin="0,0,0,5"/>
-                <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                    <TextBox Text="{Binding Telefono, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="14"/>
-                </Border>
-            </StackPanel>
+                <!-- Teléfono -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Teléfono" FontSize="16" Margin="0,0,0,5"/>
+                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
+                        <TextBox Text="{Binding Telefono, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontSize="14" 
+                                 HorizontalAlignment="Stretch"/>
+                    </Border>
+                </StackPanel>
 
-            <!-- Notas -->
-            <StackPanel Margin="0,12,0,0">
-                <TextBlock Text="Notas" FontSize="16" Margin="0,0,0,5"/>
-                <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                    <TextBox Text="{Binding Notas, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="14" 
-                             AcceptsReturn="True" 
-                             TextWrapping="Wrap"
-                             Height="70"/>
-                </Border>
+                <!-- Notas -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Notas" FontSize="16" Margin="0,0,0,5"/>
+                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
+                        <TextBox Text="{Binding Notas, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontSize="14" 
+                                 AcceptsReturn="True" 
+                                 TextWrapping="Wrap"
+                                 MinHeight="70"
+                                 HorizontalAlignment="Stretch"/>
+                    </Border>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
 
         <!-- Botones -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">

@@ -37,5 +37,10 @@ namespace SistemaInstituto.Views
         {
             this.DialogResult = false;
         }
+
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !decimal.TryParse(((TextBox)sender).Text + e.Text, out _);
+        }
     }
 }

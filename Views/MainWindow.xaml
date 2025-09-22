@@ -5,7 +5,8 @@
         xmlns:vm="clr-namespace:SistemaInstituto.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStartupLocation="CenterScreen"
-        Title="Sistema Instituto Mandela" Width="1280" Height="800"
+        Title="Sistema Instituto Mandela"
+        MinWidth="900" MinHeight="600"
         FontFamily="Bahnschrift">
 
     <Window.DataContext>
@@ -14,12 +15,13 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="175"/>
+            <!-- Menú lateral ahora con tamaño adaptable -->
+            <ColumnDefinition Width="Auto" MinWidth="170"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Panel lateral -->
-        <Border Grid.Column="0" Background="#28A498" Margin="0">
+        <Border Grid.Column="0" Background="#28A498">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -36,46 +38,55 @@
                            VerticalAlignment="Center"/>
 
                 <!-- Botones -->
-                <StackPanel Grid.Row="1" Margin="10">
-                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarAlumnosCommand}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="Account" Width="20" Height="20" Margin="0,0,8,0"/>
-                            <TextBlock Text="Ver alumnos"/>
-                        </StackPanel>
-                    </Button>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarAlumnosCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Account" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver alumnos"/>
+                            </StackPanel>
+                        </Button>
 
-                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarPagosCommand}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="NotebookOutline" Width="20" Height="20" Margin="0,0,8,0"/>
-                            <TextBlock Text="Ver pagos"/>
-                        </StackPanel>
-                    </Button>
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarPagosCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="NotebookOutline" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver pagos"/>
+                            </StackPanel>
+                        </Button>
 
-                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarArancelesCommand}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="CurrencyUsd" Width="20" Height="20" Margin="0,0,8,0"/>
-                            <TextBlock Text="Ver aranceles"/>
-                        </StackPanel>
-                    </Button>
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarArancelesCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="CurrencyUsd" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver aranceles"/>
+                            </StackPanel>
+                        </Button>
 
-                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Command="{Binding MostrarBeneficiosCommand}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="AccountGroup" Width="20" Height="20" Margin="0,0,8,0"/>
-                            <TextBlock Text="Ver beneficios"/>
-                        </StackPanel>
-                    </Button>
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarBeneficiosCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="AccountGroup" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver beneficios"/>
+                            </StackPanel>
+                        </Button>
 
-                    <Button FontSize="16" Margin="0,5" Height="40" Padding="8" Background="#ACECE5" Command="{Binding MostrarSeleccionPagoCommand}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Margin="0,0,8,0"/>
-                            <TextBlock Text="Agregar pago"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Background="#ACECE5" Command="{Binding MostrarSeleccionPagoCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Agregar pago"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Background="#FFD700" Command="{Binding ExportarPdfCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ExportVariant" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Exportar"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
 
                 <!-- Versión -->
                 <TextBlock Grid.Row="2"
-                           Text="v1.0"
+                           Text="v1.1"
                            Foreground="White"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Bottom"
@@ -84,6 +95,6 @@
         </Border>
 
         <!-- Contenido dinámico -->
-        <ContentControl Grid.Column="1" Content="{Binding VistaActual}"/>
+        <ContentControl Grid.Column="1" Content="{Binding VistaActual}" Margin="10"/>
     </Grid>
 </Window>

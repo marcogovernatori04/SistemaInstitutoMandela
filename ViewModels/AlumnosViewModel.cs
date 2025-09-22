@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SistemaInstituto.Commands;
 using SistemaInstituto.Data;
+using SistemaInstituto.Interfaces;
 using SistemaInstituto.Models;
 using SistemaInstituto.Views;
 using System.Collections.ObjectModel;

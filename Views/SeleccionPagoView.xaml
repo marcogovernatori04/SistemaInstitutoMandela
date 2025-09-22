@@ -8,9 +8,12 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         d:DataContext="{d:DesignInstance Type=viewmodels:SeleccionPagoViewModel}"
         mc:Ignorable="d"
-        Title="Selección de pago" Height="180" Width="420"
+        Title="Selección de pago" 
+        Width="420" Height="180" 
+        MinWidth="400" MinHeight="180"
         FontFamily="Bahnschrift"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
 
     <StackPanel Margin="16">
         <!-- Título -->

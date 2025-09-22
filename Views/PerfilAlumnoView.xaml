@@ -3,14 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SistemaInstituto.Views"
         xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels"
-        xmlns:ut="clr-namespace:SistemaInstituto.Utilities" d:DataContext="{d:DesignInstance Type=viewmodels:PerfilAlumnoViewModel}"
-        WindowStartupLocation="CenterScreen"
+        xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
+        d:DataContext="{d:DesignInstance Type=viewmodels:PerfilAlumnoViewModel}"
         mc:Ignorable="d"
-        Title="Perfil del alumno" Height="768" Width="1024"
+        WindowStartupLocation="CenterScreen"
+        Title="Perfil del alumno"
+        Width="900" Height="768"
+        MinWidth="400" MinHeight="700"
         Background="#FAFAFA"
-        FontFamily="Bahnschrift">
+        FontFamily="Bahnschrift"
+        ResizeMode="CanResize">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -25,9 +28,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Nombre del alumno -->
         <TextBlock Text="{Binding Nombre}" FontSize="24" FontWeight="SemiBold" 
-                   Margin="0,0,0,12" Background="#EBEBEB" Padding="6" />
+                   Margin="0,0,0,12" Background="#EBEBEB" Padding="6" TextWrapping="Wrap"/>
 
+        <!-- Información general -->
         <Grid Grid.Row="1" Margin="0,0,0,12" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -35,12 +40,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <!-- Curso y Estado -->
             <Border Background="#8BE4DB" CornerRadius="6" Padding="8" VerticalAlignment="Center" MinWidth="120">
                 <StackPanel>
-                    <TextBlock Text="{Binding Curso}" FontSize="20" FontWeight="SemiBold" 
-                       HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding Estado}" FontSize="16" FontWeight="Medium" 
-                       HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding Curso}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding Estado}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="Red"/>
@@ -55,30 +59,20 @@
                 </StackPanel>
             </Border>
 
-
+            <!-- Teléfono y Notas -->
             <Border Grid.Column="1" Background="LightGray" Margin="10,0,0,0" Width="300"
                     CornerRadius="6" Padding="5" VerticalAlignment="Center">
-                <StackPanel Grid.Column="1" Orientation="Vertical">
-                    <TextBlock Text="{Binding Telefono, StringFormat='Teléfono: {0}'}" 
-                             Padding="2" FontSize="14"/>
-                    <TextBlock Text="{Binding Notas, StringFormat='Notas: {0}'}"
-                             Padding="2" FontSize="12" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding Telefono, StringFormat='Teléfono: {0}'}" Padding="2" FontSize="14"/>
+                    <TextBlock Text="{Binding Notas, StringFormat='Notas: {0}'}" Padding="2" FontSize="12" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
-
-            <Border Background="#EBEBEB"
-                    CornerRadius="6"
-                    Padding="8"
-                    Margin="12,0,0,0"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Left"
-                    Grid.Column="2">
-
+            <!-- Beneficio -->
+            <Border Background="#EBEBEB" CornerRadius="6" Padding="8" Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="2">
                 <TextBlock FontSize="16" FontWeight="Medium">
                     <Run Text="Beneficio: " Foreground="Black"/>
-                    <Run x:Name="DefinicionRun"
-                         Text="{Binding ExistenciaBeneficio, Mode=OneWay}" />
+                    <Run x:Name="DefinicionRun" Text="{Binding ExistenciaBeneficio, Mode=OneWay}"/>
                 </TextBlock>
 
                 <Border.Resources>
@@ -87,11 +81,9 @@
                             <DataTrigger Binding="{Binding ExistenciaBeneficio}" Value="No">
                                 <Setter Property="Foreground" Value="Red"/>
                             </DataTrigger>
-
                             <DataTrigger Binding="{Binding ExistenciaBeneficio}" Value="Sí (aplica)">
                                 <Setter Property="Foreground" Value="Green"/>
                             </DataTrigger>
-
                             <DataTrigger Binding="{Binding ExistenciaBeneficio}" Value="Sí (no aplica)">
                                 <Setter Property="Foreground" Value="Orange"/>
                             </DataTrigger>
@@ -100,24 +92,26 @@
                 </Border.Resources>
             </Border>
 
+            <!-- Botón editar -->
             <Button Content="Editar alumno" Width="150" Height="50" FontSize="16" 
-                    Command="{Binding EditarAlumnoCommand}"
-                    HorizontalAlignment="Right" Grid.Column="2"/>
+                    Command="{Binding EditarAlumnoCommand}" HorizontalAlignment="Right" Grid.Column="2"/>
         </Grid>
 
-        <Border Grid.Row="2" CornerRadius="10" BorderThickness="1" BorderBrush="#BFBFBF" Padding="8">
-            <DataGrid ItemsSource="{Binding Pagos}" AutoGenerateColumns="False" 
-                      HeadersVisibility="Column" ColumnWidth="*">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Concepto" Binding="{Binding IdArancelNavigation.Concepto}" />
-                    <DataGridTextColumn Header="Método de pago" Binding="{Binding IdMetodoPagoNavigation.Nombre}" />
-                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaPago, StringFormat={}{0:dd/MM/yyyy}}" />
-                    <DataGridTextColumn Header="Mes" Binding="{Binding Concepto}" />
-                    <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" />
-                    <DataGridTextColumn Header="Observaciones" Binding="{Binding Notas}" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Border>
+        <!-- Pagos del alumno con Scroll -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <Border CornerRadius="10" BorderThickness="1" BorderBrush="#BFBFBF" Padding="8">
+                <DataGrid ItemsSource="{Binding Pagos}" AutoGenerateColumns="False" 
+                          HeadersVisibility="Column" ColumnWidth="*">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Concepto" Binding="{Binding IdArancelNavigation.Concepto}" />
+                        <DataGridTextColumn Header="Método de pago" Binding="{Binding IdMetodoPagoNavigation.Nombre}" Width="SizeToHeader"/>
+                        <DataGridTextColumn Header="Fecha" Binding="{Binding FechaPago, StringFormat={}{0:dd/MM/yyyy}}" />
+                        <DataGridTextColumn Header="Mes" Binding="{Binding Concepto}" />
+                        <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" />
+                        <DataGridTextColumn Header="Notas" Binding="{Binding Notas}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </ScrollViewer>
     </Grid>
 </Window>
-

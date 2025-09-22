@@ -3,13 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SistemaInstituto.Views" 
         xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels" 
         d:DataContext="{d:DesignInstance Type=viewmodels:FormArancelesViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         FontFamily="Bahnschrift"
-        Title="Carga de aranceles" Height="450" Width="600">
+        Title="Carga de aranceles"
+        MinWidth="500" MinHeight="400"
+        Width="600" Height="450"
+        ResizeMode="CanResize">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -22,7 +24,8 @@
         <TextBlock Text="Actualizar aranceles" 
                    FontSize="24" 
                    FontWeight="SemiBold" 
-                   Margin="0,0,0,12"/>
+                   Margin="0,0,0,12"
+                   TextWrapping="Wrap"/>
 
         <!-- Grilla -->
         <DataGrid Grid.Row="1" 
@@ -33,16 +36,20 @@
                   IsReadOnly="False"
                   SelectionUnit="CellOrRowHeader"
                   SelectionMode="Extended"
-                  ColumnWidth="*">
-
+                  ColumnWidth="*"
+                  HorizontalAlignment="Stretch"
+                  MinHeight="200">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Curso" Binding="{Binding CursoNombre}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Curso" Binding="{Binding CursoNombre}" IsReadOnly="True" MinWidth="120"/>
                 <DataGridTextColumn Header="Hasta el 10" 
-                                    Binding="{Binding HastaEl10, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}"/>
+                                    Binding="{Binding HastaEl10, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}" 
+                                    MinWidth="100"/>
                 <DataGridTextColumn Header="Del 10 al 30" 
-                                    Binding="{Binding Del10Al30, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}"/>
+                                    Binding="{Binding Del10Al30, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}" 
+                                    MinWidth="100"/>
                 <DataGridTextColumn Header="Mes vencido" 
-                                    Binding="{Binding MesVencido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}"/>
+                                    Binding="{Binding MesVencido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:C}}" 
+                                    MinWidth="100"/>
             </DataGrid.Columns>
         </DataGrid>
 

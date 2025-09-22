@@ -19,7 +19,7 @@
         <ut:ArancelColorConverter x:Key="ArancelColorConverter"/>
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="Auto"/>
@@ -28,74 +28,77 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
+        <DockPanel Grid.Row="0" LastChildFill="False" Margin="0">
             <TextBlock Text="Listado de pagos"
                        FontSize="24"
                        FontWeight="Bold"
-                       Margin="0,0,0,20"
                        VerticalAlignment="Center"
-                       Grid.Column="0"/>
+                       DockPanel.Dock="Left"/>
 
             <Button Content="Agregar pago"
                     Command="{Binding SeleccionarPagoCommand}"
-                    Width="180"
-                    Height="30"
+                    MinWidth="140"
+                    Height="35"
                     FontSize="16"
-                    Margin="0,0,0,10"
-                    Grid.Column="1"/>
-        </Grid>
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Margin="10,0,0,0"/>
+        </DockPanel>
 
-        <!-- Filtros -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+        <!-- Filtros compactos en una sola línea -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,10">
+
+            <!-- Alumno -->
             <StackPanel Margin="0,0,10,0">
-                <TextBlock Text="Alumno" FontSize="14"/>
-                <TextBox Width="180" FontSize="16"
-                         Text="{Binding FiltroAlumno, UpdateSourceTrigger=PropertyChanged, Delay=300}"/>
+                <TextBlock Text="Alumno" FontSize="14" FontWeight="Bold"/>
+                <TextBox Width="150" FontSize="14"
+                 Text="{Binding FiltroAlumno, UpdateSourceTrigger=PropertyChanged, Delay=300}"/>
             </StackPanel>
 
+            <!-- Curso -->
             <StackPanel Margin="0,0,10,0">
-                <TextBlock Text="Curso" FontSize="14"/>
-                <ComboBox Width="180" FontSize="16"
-                          ItemsSource="{Binding Cursos}"
-                          SelectedItem="{Binding CursoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="Curso" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="120" FontSize="14"
+                  ItemsSource="{Binding Cursos}"
+                  SelectedItem="{Binding CursoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
+            <!-- Método de pago -->
             <StackPanel Margin="0,0,10,0">
-                <TextBlock Text="Método de pago" FontSize="14"/>
-                <ComboBox Width="180" FontSize="16"
-                          ItemsSource="{Binding MetodosPago}"
-                          SelectedItem="{Binding MetodoPagoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="Método de pago" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="130" FontSize="14"
+                  ItemsSource="{Binding MetodosPago}"
+                  SelectedItem="{Binding MetodoPagoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
-            <StackPanel Margin="0,0,10,0"
-                        Visibility="{Binding MostrarComboProfesores, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="Profesor" FontSize="14"/>
-                <ComboBox Width="150" FontSize="16"
-                          ItemsSource="{Binding Profesores}"
-                          SelectedItem="{Binding ProfesorSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+            <!-- Fecha -->
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Fecha" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="100" FontSize="14"
+                  ItemsSource="{Binding Meses}"
+                  SelectedItem="{Binding MesSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
-            <StackPanel>
-                <TextBlock Text="Fecha" FontSize="14"/>
-                <ComboBox ItemsSource="{Binding Meses}"
-                          SelectedItem="{Binding MesSeleccionado, UpdateSourceTrigger=PropertyChanged}"
-                          Width="120" FontSize="16"/>
+            <!-- Profesor (opcional, al final de la línea) -->
+            <StackPanel Orientation="Vertical"
+                Visibility="{Binding MostrarComboProfesores, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="Profesor" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="200" FontSize="14"
+                  ItemsSource="{Binding Profesores}"
+                  SelectedItem="{Binding ProfesorSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
+
         </StackPanel>
+
 
         <!-- Tabla -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding PagosView}" 
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
-                  IsReadOnly="True">
+                  IsReadOnly="True" SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Alumno" Binding="{Binding IdAlumnoNavigation.Nombre}" Width="*"/>
+                <DataGridTextColumn Header="Alumno" Binding="{Binding IdAlumnoNavigation.Nombre}" Width="2*"/>
                 <DataGridTextColumn Header="Curso" Binding="{Binding IdAlumnoNavigation.IdCursoNavigation.Nombre}" Width="*"/>
                 <DataGridTextColumn Header="Arancel" Binding="{Binding IdArancelNavigation.Concepto}" Width="*">
                     <DataGridTextColumn.ElementStyle>
@@ -107,9 +110,9 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Fecha" Binding="{Binding FechaPago, StringFormat={}{0:dd/MM/yyyy}}" Width="*"/>
                 <DataGridTextColumn Header="Concepto" Binding="{Binding Concepto}" Width="SizeToHeader"/>
-                <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" Width="SizeToHeader"/>
-                <DataGridTextColumn Header="Método de pago" Binding="{Binding IdMetodoPagoNavigation.Nombre}" Width="*"/>
-                <DataGridTextColumn Header="Notas" Binding="{Binding Notas}" Width="2*">
+                <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" Width="*"/>
+                <DataGridTextColumn Header="Método de pago" Binding="{Binding IdMetodoPagoNavigation.Nombre}" Width="SizeToHeader"/>
+                <DataGridTextColumn Header="Notas" Binding="{Binding Notas}" Width="*">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
