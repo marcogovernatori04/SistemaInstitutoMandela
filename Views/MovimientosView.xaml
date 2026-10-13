@@ -1,0 +1,110 @@
+<UserControl x:Class="SistemaInstituto.Views.MovimientosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SistemaInstituto.ViewModels"
+             xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
+             d:DataContext="{d:DesignInstance Type=vm:MovimientosViewModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1025"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+        <ut:SaldoColorConverter x:Key="SaldoColorConverter"/>
+    </UserControl.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" LastChildFill="False" Margin="0">
+            <TextBlock Text="Listado de movimientos"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       DockPanel.Dock="Left"/>
+        </DockPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,10">
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Alumno" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="190" FontSize="14"
+                          ItemsSource="{Binding Alumnos}"
+                          SelectedItem="{Binding AlumnoSeleccionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="Nombre"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Curso" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="140" FontSize="14"
+                          ItemsSource="{Binding Cursos}"
+                          SelectedItem="{Binding CursoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Concepto" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="180" FontSize="14"
+                          ItemsSource="{Binding Conceptos}"
+                          SelectedItem="{Binding ConceptoSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Fecha" FontSize="14" FontWeight="Bold"/>
+                <ComboBox Width="100" FontSize="14"
+                          ItemsSource="{Binding Meses}"
+                          SelectedItem="{Binding MesSeleccionado, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding MovimientosView}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat={}{0:dd/MM/yyyy}}" Width="*"/>
+                <DataGridTextColumn Header="Alumno" Binding="{Binding IdAlumnoNavigation.Nombre}" Width="1.5*"/>
+                <DataGridTextColumn Header="Curso" Binding="{Binding IdAlumnoNavigation.IdCursoNavigation.Nombre}" Width="1.3*"/>
+                <DataGridTextColumn Header="Concepto" Binding="{Binding Concepto}" Width="2*"/>
+                <DataGridTextColumn Header="Importe" Binding="{Binding Importe, StringFormat={}{0:C0}}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{Binding Importe, Converter={StaticResource SaldoColorConverter}}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="IdPago" Binding="{Binding IdPago}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="3" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="{Binding CantRegistros, StringFormat='Cantidad de registros: {0}'}"
+                       FontSize="18" FontWeight="SemiBold"/>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Visibility="{Binding BalanceVisibility}"
+                        HorizontalAlignment="Right">
+                <TextBlock Text="{Binding BalanceActual, StringFormat='Balance actual: {0:C0}'}"
+                           Foreground="{Binding BalanceForeground}"
+                           FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding EstadoBalance, StringFormat=' ({0})'}"
+                           Foreground="{Binding BalanceForeground}"
+                           FontSize="18" FontWeight="SemiBold"
+                           Margin="6,0,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

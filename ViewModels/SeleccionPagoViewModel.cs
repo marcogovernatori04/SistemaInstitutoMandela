@@ -38,7 +38,6 @@ namespace SistemaInstituto.ViewModels
             if (win.ShowDialog() == true)
             {
                 PagoIndividual = vm.PagoGuardado;
-                CloseAction?.Invoke(true);
             }
             else
             {
@@ -56,7 +55,6 @@ namespace SistemaInstituto.ViewModels
             if (win.ShowDialog() == true)
             {
                 PagosGrupales = vm.PagosGuardados;
-                CloseAction?.Invoke(true);
             }
             else
             {

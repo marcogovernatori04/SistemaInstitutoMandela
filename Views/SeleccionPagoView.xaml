@@ -11,7 +11,7 @@
         Title="Selección de pago" 
         Width="420" Height="180" 
         MinWidth="400" MinHeight="180"
-        FontFamily="Bahnschrift"
+        FontFamily="Segoe UI"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
 

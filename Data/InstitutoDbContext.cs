@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SistemaInstituto.Models;
 using System.IO;
+using System.Windows;
 
 namespace SistemaInstituto.Data;
 
@@ -28,15 +29,19 @@ public partial class InstitutoDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var rutaDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Instituto.sqlite");
-
+        var rutaDb = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "SistemaInstituto", "Instituto.sqlite");
         var carpeta = Path.GetDirectoryName(rutaDb);
         if (!Directory.Exists(carpeta))
             Directory.CreateDirectory(carpeta);
 
+        File.AppendAllText(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SistemaInstituto", "debug.log"),
+            $"{DateTime.Now} - Ruta db: {rutaDb} - Existe: {File.Exists(rutaDb)}\n"
+        );
+
         optionsBuilder.UseSqlite($"Data Source={rutaDb}");
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

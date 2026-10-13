@@ -115,10 +115,10 @@ namespace SistemaInstituto.ViewModels
 
         private void CargarDatos()
         {
-            var alumnosDb = _context.Alumnos.Include(a => a.IdCursoNavigation).Include(a => a.IdEstadoNavigation).OrderBy(a => a.IdCursoNavigation.Id).ToList();
+            var alumnosDb = _context.Alumnos.Include(a => a.IdCursoNavigation).Include(a => a.IdEstadoNavigation).OrderBy(c => c.IdCursoNavigation.Orden).ToList();
             Alumnos = new ObservableCollection<Alumno>(alumnosDb);
 
-            var listaCursos = alumnosDb.Select(a => a.IdCursoNavigation).Distinct().ToList();
+            var listaCursos = _context.Cursos.OrderBy(c => c.Orden).ToList();
             Cursos = new ObservableCollection<Curso>(listaCursos);
 
             Cursos.Insert(0, new Curso { Id = 0, Nombre = "Todos los cursos" });

@@ -3,6 +3,7 @@ using SistemaInstituto.Commands;
 using SistemaInstituto.Data;
 using SistemaInstituto.Generators;
 using SistemaInstituto.Models;
+using SistemaInstituto.Utilities;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -164,7 +165,7 @@ namespace SistemaInstituto.ViewModels
 
             var arancelesVigentes = _context.Aranceles
                 .Where(ar =>
-                    ar.IdCurso == AlumnoSeleccionado.IdCurso &&
+                    (ar.IdCurso == AlumnoSeleccionado.IdCurso || ar.IdCurso == null) &&
                     ar.VigenciaDesde <= fechaPago &&
                     (ar.VigenciaHasta == null || ar.VigenciaHasta >= fechaPago))
                 .OrderBy(ar => ar.Monto)
@@ -177,7 +178,7 @@ namespace SistemaInstituto.ViewModels
             }
 
             if (Aranceles.Count > 1)
-                ArancelSeleccionado = Aranceles[1];
+                ArancelSeleccionado = Aranceles[2];
             else
                 ArancelSeleccionado = Aranceles.FirstOrDefault();
         }
@@ -211,7 +212,7 @@ namespace SistemaInstituto.ViewModels
 
             bool esBeneficiario = PoseeBeneficio(AlumnoSeleccionado.Id);
             bool cursoAdmite = AlumnoSeleccionado.IdCursoNavigation?.Beneficio ?? false;
-            bool cuotaMasBarata = PoseeCuotaMasBarata(AlumnoSeleccionado.Id);
+            bool cuotaMasBarata = AplicaDescuentoBeneficio(AlumnoSeleccionado.Id);
 
             if (esBeneficiario && cursoAdmite && cuotaMasBarata)
             {
@@ -266,46 +267,9 @@ namespace SistemaInstituto.ViewModels
             return _context.AlumnosBeneficios.Any(ab => ab.IdAlumno == idAlumno);
         }
 
-        private bool PoseeCuotaMasBarata(int idAlumno)
+        private bool AplicaDescuentoBeneficio(int idAlumno)
         {
-            var beneficioId = _context.AlumnosBeneficios
-                .Where(ab => ab.IdAlumno == idAlumno)
-                .Select(ab => (int?)ab.IdBeneficio)
-                .FirstOrDefault();
-
-            if (beneficioId.HasValue)
-            {
-                var cursosIdGrupo = _context.AlumnosBeneficios
-                    .Where(ab => ab.IdBeneficio == beneficioId.Value)
-                    .Select(ab => ab.IdAlumnoNavigation.IdCurso)
-                    .Distinct().ToList();
-
-                if (cursosIdGrupo.Count != 0)
-                {
-                    var fechaPago = DateOnly.FromDateTime(FechaPago);
-
-                    var minimoCurso = _context.Aranceles
-                        .Where(ar =>
-                            ar.VigenciaDesde <= fechaPago &&
-                            (ar.VigenciaHasta == null || ar.VigenciaHasta >= fechaPago) &&
-                            cursosIdGrupo.Contains(ar.IdCurso))
-                        .GroupBy(ar => ar.IdCurso)
-                        .Select(g => new { IdCurso = g.Key, MontoMinimo = g.Min(ar => ar.Monto) })
-                        .AsNoTracking().ToList();
-
-                    if (minimoCurso.Count != 0)
-                    {
-                        var minimoGrupo = minimoCurso.Min(x => x.MontoMinimo);
-                        var minimoAlumno = minimoCurso
-                            .Where(x => x.IdCurso == (AlumnoSeleccionado?.IdCurso ?? 0))
-                            .Select(x => (decimal?)x.MontoMinimo)
-                            .FirstOrDefault() ?? decimal.MaxValue;
-
-                        return minimoAlumno == minimoGrupo;
-                    }
-                }
-            }
-            return false;
+            return _context.AlumnosBeneficios.Any(ab => ab.IdAlumno == idAlumno && ab.AplicaDescuento);
         }
 
         private bool PuedeGuardar()
@@ -336,10 +300,10 @@ namespace SistemaInstituto.ViewModels
                 IdAlumno = AlumnoSeleccionado!.Id,
                 IdArancel = ArancelSeleccionado!.Id,
                 FechaPago = DateOnly.FromDateTime(FechaPago),
-                Concepto = Concepto,
+                Concepto = TextNormalizer.ToTitleCase(Concepto),
                 MontoPagado = MontoPagado ?? 0,
                 IdMetodoPago = MetodoPagoSeleccionado!.Id,
-                Notas = Notas
+                Notas = TextNormalizer.ToTitleCaseOrNull(Notas)
             };
 
             _context.Pagos.Add(nuevoPago);
@@ -352,7 +316,7 @@ namespace SistemaInstituto.ViewModels
                 IdAlumno = AlumnoSeleccionado.Id,
                 Fecha = DateTime.Now,
                 Importe = importeMovimiento,
-                Concepto = esPagoManual ? "Cargo manual" : $"Cargo arancel {ArancelSeleccionado.Concepto}",
+                Concepto = TextNormalizer.ToSentenceCase(esPagoManual ? "Cargo manual" : $"Cargo arancel {ArancelSeleccionado.Concepto}"),
                 IdPago = nuevoPago.Id,
             };
 
@@ -361,7 +325,7 @@ namespace SistemaInstituto.ViewModels
                 IdAlumno = AlumnoSeleccionado.Id,
                 Fecha = DateTime.Now,
                 Importe = -(MontoPagado ?? 0),
-                Concepto = "Pago recibido",
+                Concepto = TextNormalizer.ToSentenceCase("Pago recibido"),
                 IdPago = nuevoPago.Id,
             };
 

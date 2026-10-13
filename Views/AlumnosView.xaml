@@ -7,7 +7,7 @@
              xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
              d:DataContext="{d:DesignInstance Type=viewmodels:AlumnosViewModel}"
              mc:Ignorable="d" 
-             FontFamily="Bahnschrift"
+             FontFamily="Segoe UI"
              d:DesignHeight="800" d:DesignWidth="1025">
 
     <Grid Margin="15">

@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterScreen"
         Title="Sistema Instituto Mandela"
         MinWidth="900" MinHeight="600"
-        FontFamily="Bahnschrift">
+        FontFamily="Segoe UI">
 
     <Window.DataContext>
         <vm:MainViewModel/>
@@ -54,6 +54,13 @@
                             </StackPanel>
                         </Button>
 
+                        <Button FontSize="14" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarMovimientosCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="SwapHorizontal" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver movimientos"/>
+                            </StackPanel>
+                        </Button>
+
                         <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarArancelesCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <materialDesign:PackIcon Kind="CurrencyUsd" Width="20" Height="20" Margin="0,0,8,0"/>
@@ -68,12 +75,23 @@
                             </StackPanel>
                         </Button>
 
-                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Background="#ACECE5" Command="{Binding MostrarSeleccionPagoCommand}">
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Command="{Binding MostrarCursosCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Margin="0,0,8,0"/>
-                                <TextBlock Text="Agregar pago"/>
+                                <materialDesign:PackIcon Kind="HumanMaleBoard" Width="20" Height="20" Margin="0,0,8,0"/>
+                                <TextBlock Text="Ver cursos"/>
                             </StackPanel>
                         </Button>
+
+
+                        <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" 
+                                Background="#ACECE5" Command="{Binding MostrarSeleccionPagoCommand}" VerticalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Margin="0,0,8,0"
+                                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="Agregar pago" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
 
                         <Button FontSize="16" Margin="0,5" MinHeight="40" Padding="8" Background="#FFD700" Command="{Binding ExportarPdfCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -81,12 +99,15 @@
                                 <TextBlock Text="Exportar"/>
                             </StackPanel>
                         </Button>
+                        
+                        
+                        
                     </StackPanel>
                 </ScrollViewer>
 
                 <!-- Versión -->
                 <TextBlock Grid.Row="2"
-                           Text="v1.1"
+                           Text="v26.3.6"
                            Foreground="White"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Bottom"

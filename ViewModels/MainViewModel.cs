@@ -21,18 +21,22 @@ namespace SistemaInstituto.ViewModels
 
         public ICommand MostrarAlumnosCommand { get; }
         public ICommand MostrarPagosCommand { get; }
+        public ICommand MostrarMovimientosCommand { get; }
         public ICommand MostrarArancelesCommand { get; }
         public ICommand MostrarSeleccionPagoCommand { get; }
         public ICommand MostrarBeneficiosCommand { get; }
+        public ICommand MostrarCursosCommand { get; }
         public ICommand ExportarPdfCommand { get; }
 
         public MainViewModel()
         {
             MostrarAlumnosCommand = new RelayCommand(_ => VistaActual = new AlumnosViewModel());
             MostrarPagosCommand = new RelayCommand(_ => VistaActual = new PagosViewModel());
+            MostrarMovimientosCommand = new RelayCommand(_ => VistaActual = new MovimientosViewModel());
             MostrarArancelesCommand = new RelayCommand(_ => VistaActual = new ArancelesViewModel());
             MostrarSeleccionPagoCommand = new RelayCommand(o => AbrirFormPago());
             MostrarBeneficiosCommand = new RelayCommand(_ => VistaActual = new BeneficiosViewModel());
+            MostrarCursosCommand = new RelayCommand(_ => VistaActual = new CursosViewModel());
 
             ExportarPdfCommand = new RelayCommand(
                 _ => ExportarPdf(),

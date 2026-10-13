@@ -11,7 +11,7 @@ namespace SistemaInstituto.ViewModels
 {
     public class ArancelesViewModel : BaseViewModel
     {
-        public RelayCommand AgregarArancelCommand { get; }
+        public RelayCommand ActualizarArancelCommand { get; }
         public RelayCommand ToggleInactivosCommand { get; }
 
         public ObservableCollection<Arancel> Aranceles { get; set; } = null!;
@@ -57,12 +57,12 @@ namespace SistemaInstituto.ViewModels
         public ArancelesViewModel()
         {
             CargarDatos();
-            AgregarArancelCommand = new RelayCommand(o => AgregarArancel());
+            ActualizarArancelCommand = new RelayCommand(o => ActualizarArancel());
             ToggleInactivosCommand = new RelayCommand(o => MostrarInactivos = !MostrarInactivos);
 
         }
 
-        private void AgregarArancel()
+        private void ActualizarArancel()
         {
             var viewModel = new FormArancelesViewModel();
             var ventana = new FormArancelesView()
@@ -87,20 +87,21 @@ namespace SistemaInstituto.ViewModels
             }
         }
 
+
         private void CargarDatos()
         {
             var arancelesDb = _context.Aranceles
                 .Include(a => a.IdCursoNavigation)
                 .Where(a => a.Monto != null)
                 .OrderByDescending(a => a.Activo)
-                    .ThenBy(a => a.IdCurso)
+                    .ThenBy(a => a.IdCursoNavigation.Orden)
                     .ThenBy(a => a.Monto)
                 .AsNoTracking()
                 .ToList();
 
             Aranceles = new ObservableCollection<Arancel>(arancelesDb);
 
-            var listaCursos = arancelesDb.Select(ar => ar.IdCursoNavigation).DistinctBy(c => c.Id).ToList();
+            var listaCursos = _context.Cursos.OrderBy(c => c.Orden).ToList();
             Cursos = new ObservableCollection<Curso>(listaCursos);
 
             Cursos.Insert(0, new Curso { Id = 0, Nombre = "Todos los cursos" });

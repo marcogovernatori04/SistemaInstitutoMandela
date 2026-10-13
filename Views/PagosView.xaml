@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=vm:PagosViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1025"
-             FontFamily="Bahnschrift">
+             FontFamily="Segoe UI">
 
     <UserControl.Resources>
         <ut:EnumToBoolean x:Key="EnumToBoolean"/>
@@ -110,7 +110,7 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Fecha" Binding="{Binding FechaPago, StringFormat={}{0:dd/MM/yyyy}}" Width="*"/>
                 <DataGridTextColumn Header="Concepto" Binding="{Binding Concepto}" Width="SizeToHeader"/>
-                <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" Width="*"/>
+                <DataGridTextColumn Header="Monto" Binding="{Binding MontoPagado, StringFormat={}{0:C0}}" Width=".9*"/>
                 <DataGridTextColumn Header="Método de pago" Binding="{Binding IdMetodoPagoNavigation.Nombre}" Width="SizeToHeader"/>
                 <DataGridTextColumn Header="Notas" Binding="{Binding Notas}" Width="*">
                     <DataGridTextColumn.ElementStyle>

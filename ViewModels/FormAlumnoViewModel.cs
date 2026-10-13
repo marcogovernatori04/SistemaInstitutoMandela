@@ -2,6 +2,7 @@
 using SistemaInstituto.Commands;
 using SistemaInstituto.Data;
 using SistemaInstituto.Models;
+using SistemaInstituto.Utilities;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -46,14 +47,14 @@ namespace SistemaInstituto.ViewModels
 
         public FormAlumnoViewModel()
         {
-            Cursos = new ObservableCollection<Curso>(_context.Cursos.ToList());
+            Cursos = new ObservableCollection<Curso>(_context.Cursos.OrderBy(c => c.Orden).ToList());
             Estados = new ObservableCollection<Estado>(_context.Estados.ToList());
             GuardarCommand = new RelayCommand(GuardarAlumno);
         }
 
         public FormAlumnoViewModel(Alumno alumnoExistente)
         {
-            Cursos = new ObservableCollection<Curso>(_context.Cursos.ToList());
+            Cursos = new ObservableCollection<Curso>(_context.Cursos.OrderBy(c => c.Orden).ToList());
             GuardarCommand = new RelayCommand(GuardarAlumno);
 
             _alumnoEditando = alumnoExistente;
@@ -81,11 +82,11 @@ namespace SistemaInstituto.ViewModels
             {
                 var nuevoAlumno = new Alumno
                 {
-                    Nombre = this.Nombre,
+                    Nombre = TextNormalizer.ToTitleCase(this.Nombre),
                     IdCurso = CursoSeleccionado.Id,
                     IdEstado = 1, 
                     Telefono = this.Telefono,
-                    Notas = this.Notas
+                    Notas = TextNormalizer.ToTitleCaseOrNull(this.Notas)
                 };
 
                 _context.Alumnos.Add(nuevoAlumno);
@@ -105,11 +106,11 @@ namespace SistemaInstituto.ViewModels
                     return;
                 }
 
-                alumno.Nombre = this.Nombre;
+                alumno.Nombre = TextNormalizer.ToTitleCase(this.Nombre);
                 alumno.IdCurso = CursoSeleccionado.Id;
                 alumno.IdEstado = EstadoSeleccionado!.Id;  
                 alumno.Telefono = this.Telefono;
-                alumno.Notas = this.Notas;
+                alumno.Notas = TextNormalizer.ToTitleCaseOrNull(this.Notas);
 
                 _context.SaveChanges();
 

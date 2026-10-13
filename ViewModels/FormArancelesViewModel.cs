@@ -51,10 +51,14 @@ namespace SistemaInstituto.ViewModels
                         HastaEl10 = arancelesCurso.FirstOrDefault(a => a.Concepto == "Hasta el 10")?.Monto,
                         Del10Al30 = arancelesCurso.FirstOrDefault(a => a.Concepto == "Del 10 al 30")?.Monto,
                         MesVencido = arancelesCurso.FirstOrDefault(a => a.Concepto == "Mes vencido")?.Monto,
+                        DerechoExamen = arancelesCurso.FirstOrDefault(a => a.Concepto == "Derecho examen")?.Monto,
+                        Materiales = arancelesCurso.FirstOrDefault(a => a.Concepto == "Materiales")?.Monto,
 
                         OriginalHastaEl10 = arancelesCurso.FirstOrDefault(a => a.Concepto == "Hasta el 10")?.Monto,
                         OriginalDel10Al30 = arancelesCurso.FirstOrDefault(a => a.Concepto == "Del 10 al 30")?.Monto,
-                        OriginalMesVencido = arancelesCurso.FirstOrDefault(a => a.Concepto == "Mes vencido")?.Monto
+                        OriginalMesVencido = arancelesCurso.FirstOrDefault(a => a.Concepto == "Mes vencido")?.Monto,
+                        OriginalDerechoExamen = arancelesCurso.FirstOrDefault(a => a.Concepto == "Derecho examen")?.Monto,
+                        OriginalMateriales = arancelesCurso.FirstOrDefault(a => a.Concepto == "Materiales")?.Monto
                     };
                 })
             );
@@ -72,6 +76,10 @@ namespace SistemaInstituto.ViewModels
                     Actualizar(ca.CursoId, "Del 10 al 30", ca.Del10Al30.Value, hoy);
                 if (ca.MesVencido.HasValue && ca.MesVencido != ca.OriginalMesVencido)
                     Actualizar(ca.CursoId, "Mes vencido", ca.MesVencido.Value, hoy);
+                if (ca.DerechoExamen.HasValue && ca.DerechoExamen != ca.OriginalDerechoExamen)
+                    Actualizar(ca.CursoId, "Derecho examen", ca.DerechoExamen.Value, hoy);
+                if (ca.Materiales.HasValue && ca.Materiales != ca.OriginalMateriales)
+                    Actualizar(ca.CursoId, "Materiales", ca.Materiales.Value, hoy);
 
             }
 
@@ -114,12 +122,15 @@ namespace SistemaInstituto.ViewModels
             var arancelActual = _context.Aranceles
                 .FirstOrDefault(a => a.IdCurso == cursoId && a.Concepto == concepto && a.VigenciaHasta == null);
 
-            if (arancelActual == null || arancelActual.Monto == nuevoMonto)
-                return;
-
-
-            arancelActual.VigenciaHasta = hoy.AddDays(-1);
-            arancelActual.Activo = false;
+            if (arancelActual != null)
+            {
+                if (arancelActual.Monto == nuevoMonto)
+                {
+                    return;
+                }
+                arancelActual.VigenciaHasta = hoy.AddDays(-1);
+                arancelActual.Activo = false;
+            }
 
             var nuevoArancel = new Arancel
             {
@@ -136,16 +147,51 @@ namespace SistemaInstituto.ViewModels
         }
     }
 
-    public class CursoArancel
+    public class CursoArancel : BaseViewModel
     {
+
         public int CursoId { get; set; }
         public string CursoNombre { get; set; } = null!;
-        public decimal? HastaEl10 { get; set; }
-        public decimal? Del10Al30 { get; set; }
-        public decimal? MesVencido { get; set; }
+        private decimal? _hastaEl10;
+        public decimal? HastaEl10
+        {
+            get => _hastaEl10;
+            set { _hastaEl10 = value; OnPropertyChanged(); }
+
+        }
+
+        private decimal? _del10Al30;
+        public decimal? Del10Al30
+        {
+            get => _del10Al30;
+            set { _del10Al30 = value; OnPropertyChanged(); }
+        }
+
+        private decimal? _mesVencido;
+        public decimal? MesVencido
+        {
+            get => _mesVencido;
+            set { _mesVencido = value; OnPropertyChanged(); }
+        }
+
+        private decimal? _derechoExamen;
+        public decimal? DerechoExamen
+        {
+            get => _derechoExamen;
+            set { _derechoExamen = value; OnPropertyChanged(); }
+        }
+
+        private decimal? _materiales;
+        public decimal? Materiales
+        {
+            get => _materiales;
+            set { _materiales = value; OnPropertyChanged(); }
+        }
 
         public decimal? OriginalHastaEl10 { get; set; }
         public decimal? OriginalDel10Al30 { get; set; }
         public decimal? OriginalMesVencido { get; set; }
+        public decimal? OriginalDerechoExamen { get; set; }
+        public decimal? OriginalMateriales { get; set; }
     }
 }

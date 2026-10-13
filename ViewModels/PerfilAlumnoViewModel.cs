@@ -172,7 +172,7 @@ namespace SistemaInstituto.ViewModels
                         .Where(ar =>
                             ar.VigenciaDesde <= hoy &&
                             (ar.VigenciaHasta == null || ar.VigenciaHasta >= hoy) &&
-                            cursosIdGrupo.Contains(ar.IdCurso))
+                            (ar.IdCurso == null || cursosIdGrupo.Contains(ar.IdCurso.Value)))
                         .GroupBy(ar => ar.IdCurso)
                         .Select(g => new { IdCurso = g.Key, MontoMinimo = g.Min(ar => ar.Monto) })
                         .AsNoTracking().ToList();

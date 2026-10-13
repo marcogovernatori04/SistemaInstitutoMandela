@@ -6,7 +6,7 @@
              xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels" 
              d:DataContext="{d:DesignInstance Type=viewmodels:ArancelesViewModel}"
              mc:Ignorable="d" 
-             FontFamily="Bahnschrift"
+             FontFamily="Segoe UI"
              d:DesignHeight="800" d:DesignWidth="1025">
 
     <Grid Margin="15">
@@ -28,7 +28,7 @@
                     MinWidth="160"
                     Height="35"
                     FontSize="16"
-                    Command="{Binding AgregarArancelCommand}"
+                    Command="{Binding ActualizarArancelCommand}"
                     VerticalAlignment="Center"
                     DockPanel.Dock="Right"
                     Margin="10,0,0,0"/>

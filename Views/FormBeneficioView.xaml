@@ -3,22 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels" 
+        xmlns:viewmodels="clr-namespace:SistemaInstituto.ViewModels"
         xmlns:ut="clr-namespace:SistemaInstituto.Utilities"
         d:DataContext="{d:DesignInstance Type=viewmodels:FormBeneficioViewModel}"
         mc:Ignorable="d"
-        FontFamily="Bahnschrift"
+        FontFamily="Segoe UI"
         WindowStartupLocation="CenterScreen"
         Title="Carga de beneficio"
-        MinWidth="400" MinHeight="600"
-        Width="450" Height="750"
+        MinWidth="750" MinHeight="600"
+        Width="820" Height="680"
         ResizeMode="CanResize">
 
     <Window.Resources>
         <ut:BoolToVisibility x:Key="BoolToVisibility"/>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -26,117 +26,177 @@
         </Grid.RowDefinitions>
 
         <!-- Título -->
-        <TextBlock Text="Agregar un beneficio" 
-                   FontSize="24" 
-                   FontWeight="SemiBold" 
-                   Margin="0,0,0,15"
+        <TextBlock Text="{Binding Titulo}"
+                   FontSize="24"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,18"
                    TextWrapping="Wrap"/>
 
-        <!-- Contenido con scroll -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel VerticalAlignment="Top" Width="Auto">
+        <!-- Contenido principal: dos columnas -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- Alumno 1 -->
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Alumno 1" FontSize="16" Margin="0,0,0,5"/>
-                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                        <ComboBox ItemsSource="{Binding Alumnos}" 
-                                  SelectedItem="{Binding Alumno1Seleccionado, Mode=TwoWay}" 
-                                  DisplayMemberPath="Nombre"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  FontSize="16"/>
-                    </Border>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Curso: " FontSize="16"/>
-                        <TextBlock Text="{Binding Alumno1Seleccionado.IdCursoNavigation.Nombre}" 
-                                   FontSize="16" FontWeight="SemiBold" Foreground="#27A599"/>
-                    </StackPanel>
+            <!-- COLUMNA IZQUIERDA: lista dinámica de alumnos -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Alumnos" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                    <ItemsControl ItemsSource="{Binding AlumnosSeleccionados}" Margin="5">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,14">
+                                    <!-- Header: número + botón quitar -->
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Numero, StringFormat='Alumno {0}'}"
+                                                   FontSize="15"/>
+
+                                        <!-- Botón quitar: solo visible en slots eliminables -->
+                                        <Button Grid.Column="1"
+                                                Content="➖ Quitar"
+                                                FontSize="11"
+                                                Height="24"
+                                                Padding="8,0"
+                                                Background="#F5E6E6"
+                                                Foreground="#C0392B"
+                                                BorderThickness="0"
+                                                Cursor="Hand"
+                                                Command="{Binding DataContext.QuitarAlumnoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Visibility="{Binding EsEliminable, Converter={StaticResource BoolToVisibility}}"/>
+                                    </Grid>
+
+                                    <!-- ComboBox alumno -->
+                                    <Border Background="White" CornerRadius="8" Padding="6"
+                                            BorderBrush="#DDD" BorderThickness="1">
+                                        <ComboBox ItemsSource="{Binding DataContext.Alumnos, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedItem="{Binding AlumnoSeleccionado, Mode=TwoWay}"
+                                                  Text="{Binding TextoComboBox, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                  DisplayMemberPath="Nombre"
+                                                  IsEditable="True"
+                                                  IsTextSearchEnabled="True"
+                                                  FontSize="15"
+                                                  BorderThickness="0"/>
+                                    </Border>
+
+                                    <!-- Curso del alumno seleccionado -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                        <TextBlock Text="Curso: " FontSize="14" Foreground="#888"/>
+                                        <TextBlock Text="{Binding NombreCurso}"
+                                                   FontSize="14" FontWeight="SemiBold" Foreground="#27A599"/>
+                                    </StackPanel>
+
+                                    <CheckBox Content="Aplica descuento"
+                                              IsChecked="{Binding AplicaDescuento, Mode=TwoWay}"
+                                              IsEnabled="{Binding CursoAdmiteDescuento}"
+                                              FontSize="14" Margin="0,6,0,0"/> 
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Botón agregar alumno -->
+                    <Button Command="{Binding AgregarAlumnoCommand}"
+                            IsEnabled="{Binding PuedeAgregarAlumno}"
+                            Height="48"
+                            Margin="0,6,0,0"
+                            Background="#E8F7F6"
+                            Foreground="#27A599"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            BorderBrush="#27A599"
+                            BorderThickness="1.5"
+                            Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="➕" FontSize="15" Margin="0,0,8,0"/>
+                            <TextBlock Text="Agregar alumno" FontSize="15"/>
+                        </StackPanel>
+                    </Button>
+
                 </StackPanel>
+            </ScrollViewer>
 
-                <!-- Alumno 2 -->
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Alumno 2" FontSize="16" Margin="0,0,0,5"/>
-                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                        <ComboBox ItemsSource="{Binding Alumnos}" 
-                                  SelectedItem="{Binding Alumno2Seleccionado, Mode=TwoWay}" 
-                                  DisplayMemberPath="Nombre"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  FontSize="16"/>
-                    </Border>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Curso: " FontSize="16"/>
-                        <TextBlock Text="{Binding Alumno2Seleccionado.IdCursoNavigation.Nombre}" 
-                                   FontSize="16" FontWeight="SemiBold" Foreground="#27A599"/>
-                    </StackPanel>
-                </StackPanel>
+            <!-- Separador vertical -->
+            <Rectangle Grid.Column="1"
+                       Width="2"
+                       Fill="#E0E0E0"
+                       VerticalAlignment="Stretch"
+                       HorizontalAlignment="Center"/>
 
-                <!-- Botón Alumno 3 -->
-                <Button Content="{Binding TextoBotonAlumno}" 
-                        Command="{Binding ToggleAlumno3Command}"
-                        FontSize="14" Height="28" Margin="0,0,0,8"/>
+            <!-- COLUMNA DERECHA: nombre, descuento, info cuota -->
+            <StackPanel Grid.Column="2" VerticalAlignment="Top">
 
-                <!-- Alumno 3 -->
-                <StackPanel Margin="0,0,0,12" Visibility="{Binding MostrarAlumno3, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock Text="Alumno 3" FontSize="16" Margin="0,0,0,5"/>
-                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                        <ComboBox ItemsSource="{Binding Alumnos}" 
-                                  SelectedItem="{Binding Alumno3Seleccionado, Mode=TwoWay}" 
-                                  DisplayMemberPath="Nombre"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  FontSize="16"/>
-                    </Border>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Curso: " FontSize="16"/>
-                        <TextBlock Text="{Binding Alumno3Seleccionado.IdCursoNavigation.Nombre}" 
-                                   FontSize="16" FontWeight="SemiBold" Foreground="#27A599"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Nombre -->
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Nombre" FontSize="16" Margin="0,0,0,5"/>
-                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                        <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                <!-- Nombre del beneficio -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Nombre del beneficio" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <Border Background="White" CornerRadius="8" Padding="6"
+                            BorderBrush="#DDD" BorderThickness="1">
+                        <TextBox Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="15" BorderThickness="0"/>
                     </Border>
                 </StackPanel>
 
                 <!-- Descuento -->
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Descuento (%)" FontSize="16" Margin="0,0,0,5"/>
-                    <Border Background="White" CornerRadius="8" Padding="6" BorderBrush="#DDD" BorderThickness="1">
-                        <TextBox Text="{Binding Descuento, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="Descuento (%)" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <Border Background="White" CornerRadius="8" Padding="6"
+                            BorderBrush="#DDD" BorderThickness="1">
+                        <TextBox Text="{Binding Descuento, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="15" BorderThickness="0"/>
                     </Border>
                 </StackPanel>
 
+                <!-- Separador -->
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,16"/>
+
                 <!-- Info cuotas -->
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <TextBlock Text="Cuota más barata: " FontSize="16"/>
-                    <TextBlock Text="{Binding CuotaMasBarata}" FontSize="16" FontWeight="SemiBold"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                    <TextBlock Text="Valor final cuota: " FontSize="16"/>
-                    <TextBlock Text="{Binding ValorFinalCuota, StringFormat={}{0:C}}" 
-                               FontSize="16" Foreground="#27A599" FontWeight="SemiBold"/>
-                </StackPanel>
+                <ItemsControl ItemsSource="{Binding AlumnosConDescuento}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,12">
+                                <TextBlock Text="Beneficiario" FontSize="13" Foreground="#888" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding NombreYCuota}"
+                                           FontSize="12" FontWeight="SemiBold"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="Valor final con descuento" FontSize="13" Foreground="#888" Margin="0,6,0,4"/>
+                                <TextBlock Text="{Binding ValorFinal, StringFormat={}{0:C}}"
+                                           FontSize="20" FontWeight="Bold" Foreground="#27a599"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    
+                    
+                </ItemsControl>
 
             </StackPanel>
-        </ScrollViewer>
+        </Grid>
 
-        <!-- Botones -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button Content="Guardar" 
-                    Command="{Binding GuardarCommand}" 
-                    Width="100" Height="38"
+        <!-- Fila inferior: botones Guardar / Cancelar -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,20,0,0">
+            <Button Content="Guardar"
+                    Command="{Binding GuardarCommand}"
+                    Width="110" Height="38"
                     Style="{StaticResource BotonGuardar}"
                     Margin="0,0,10,0"/>
             <Button Content="Cancelar"
-                    Width="100" Height="38"
-                    Background="#EBEBEB" Foreground="Black" FontWeight="SemiBold"
-                    BorderThickness="0" Click="Cancelar_Click" Cursor="Hand"/>
+                    Width="110" Height="38"
+                    Background="#EBEBEB" Foreground="Black"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Click="Cancelar_Click"
+                    Cursor="Hand"/>
         </StackPanel>
-
     </Grid>
 </Window>

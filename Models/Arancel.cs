@@ -7,7 +7,7 @@ public partial class Arancel
 {
     public int Id { get; set; }
 
-    public int IdCurso { get; set; }
+    public int? IdCurso { get; set; }
 
     public string Concepto { get; set; } = null!;
 
@@ -19,7 +19,7 @@ public partial class Arancel
 
     public bool Activo { get; set; }
 
-    public virtual Curso IdCursoNavigation { get; set; } = null!;
+    public virtual Curso? IdCursoNavigation { get; set; } = null!;
 
     public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
 }

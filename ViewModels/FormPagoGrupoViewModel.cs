@@ -183,25 +183,27 @@ namespace SistemaInstituto.ViewModels
                 });
             }
 
+            var cursosIds = Alumnos.Select(x => x.IdCurso).Distinct().ToList();
+
             var conceptosArancelDb = _context.Aranceles
-                    .Where(a => Alumnos.Select(x => x.IdCurso).Contains(a.IdCurso))
-                    .GroupBy(a => a.Concepto)
-                    .Select(g => new { Concepto = g.Key, MontoMinimo = g.Min(a => a.Monto) })
-                    .OrderBy(x => x.MontoMinimo)
-                    .Select(x => x.Concepto)
-                    .ToList();
+                .Where(a => a.IdCurso == null || cursosIds.Contains(a.IdCurso.Value))
+                .GroupBy(a => a.Concepto)
+                .Select(g => new { Concepto = g.Key, MontoMinimo = g.Min(a => a.Monto) })
+                .OrderBy(x => x.MontoMinimo)
+                .Select(x => x.Concepto)
+                .ToList();
 
             foreach (var c in conceptosArancelDb)
                 ConceptosArancel.Add(c);
 
-            ConceptoArancelSeleccionado = ConceptosArancel.Count > 1 ? ConceptosArancel[1] : ConceptosArancel.FirstOrDefault();
+            ConceptoArancelSeleccionado = ConceptosArancel.Count > 1 ? ConceptosArancel[2] : ConceptosArancel.FirstOrDefault();
         }
 
         private void CalcularMontosSegunFecha()
         {
             if (ConceptoArancelSeleccionado == null || BeneficioSeleccionado == null) return;
 
-            var alumnosAranceles = BeneficioSeleccionado.AlumnosBeneficios
+            var alumnosAranceles = BeneficioSeleccionado.AlumnosBeneficios // obtengo los alumnos del beneficio seleccionado
                 .Select(ab => new
                 {
                     Alumno = ab.IdAlumnoNavigation!,
@@ -215,20 +217,19 @@ namespace SistemaInstituto.ViewModels
                 .ToList();
 
             var ordenados = alumnosAranceles.OrderBy(x => x.Arancel!.Monto ?? decimal.MaxValue).ToList();
+            // Ordeno los alumnos por el monto del arancel correspondiente a la fecha y concepto seleccionado, de menor a mayor, para aplicar los descuentos a los que correspondan según el orden y la cantidad de alumnos
 
-            // Determinar cuántos alumnos aplican descuento según cantidad de alumnos
-            int descuentos = ordenados.Count == 2 ? 1 : ordenados.Count == 3 ? 2 : 0;
 
             Alumnos.Clear();
             decimal totalBruto = 0m;
             decimal totalNeto = 0m;
             SaldoAFavorTotal = 0m;
 
-            foreach (var (entry, index) in ordenados.Select((e, i) => (e, i)))
+            foreach (var entry in ordenados) // recorro los alumnos ordenados junto con su índice para determinar si aplican descuento según su posición y la cantidad de descuentos disponibles, y calculo el monto a pagar considerando el descuento, el saldo a favor y el monto pagado manualmente si corresponde
             {
                 var alumno = entry.Alumno;
                 var arancel = entry.Arancel!;
-                decimal montoBase = arancel.Monto ?? 0m;
+                decimal montoBase = arancel.Monto ?? 0m; // si el arancel no tiene monto definido, se considera como pago manual y el monto base se toma del monto pagado manualmente o 0 si no se ingresó un monto pagado manualmente
 
                 bool esPagoManual = arancel?.Monto == null;
                 bool aplicaDescuento = false;
@@ -242,7 +243,11 @@ namespace SistemaInstituto.ViewModels
                 else
                 {
                     bool cursoPermite = alumno.IdCursoNavigation!.Beneficio;
-                    aplicaDescuento = (index < descuentos) && cursoPermite;
+                    var aplicaSegunDb = BeneficioSeleccionado.AlumnosBeneficios
+                        .FirstOrDefault(ab => ab.IdAlumno == alumno.Id)?.AplicaDescuento ?? false;
+
+                    aplicaDescuento = cursoPermite && aplicaSegunDb;
+
 
                     montoConDesc = aplicaDescuento
                         ? decimal.Round(montoBase * (1 - (BeneficioSeleccionado.Descuento / 100m)), 2)
@@ -258,7 +263,7 @@ namespace SistemaInstituto.ViewModels
                 // Determinar saldo usado y neto a pagar
                 decimal saldoUsado, netoAPagar;
 
-                if (esPagoManual)
+                if (esPagoManual) // Si es pago manual, no se considera saldo a favor ni descuento, el monto a pagar es el ingresado manualmente
                 {
                     saldoUsado = 0;
                     netoAPagar = montoConDesc;
@@ -268,18 +273,18 @@ namespace SistemaInstituto.ViewModels
                     saldoUsado = Math.Min(-saldoActual, montoConDesc);
                     netoAPagar = montoConDesc - saldoUsado;
                 }
-                else if (saldoActual > 0) // saldo deudor
+                else if (saldoActual > 0) // saldo en contra
                 {
                     saldoUsado = 0;
                     netoAPagar = montoConDesc + saldoActual;
                 }
-                else
+                else // sin saldo
                 {
                     saldoUsado = 0;
                     netoAPagar = montoConDesc;
                 }
 
-                var info = new AlumnoPagoInfo
+                var info = new AlumnoPagoInfo // creo un objeto con la información del alumno, el monto del arancel con descuento si corresponde, el saldo a favor inicial, el saldo usado para este pago y el saldo a favor nuevo después de aplicar el pago, y el monto neto a pagar después de considerar el descuento y el saldo a favor
                 {
                     IdAlumno = alumno.Id,
                     IdCurso = alumno.IdCurso,
@@ -367,10 +372,10 @@ namespace SistemaInstituto.ViewModels
                     IdAlumno = alumno.IdAlumno,
                     IdArancel = arancel.Id,
                     FechaPago = FechaPago,
-                    Concepto = Concepto,
+                    Concepto = TextNormalizer.ToTitleCase(Concepto),
                     MontoPagado = alumno.MontoAPagar,
                     IdMetodoPago = MetodoPagoSeleccionado.Id,
-                    Notas = Notas
+                    Notas = TextNormalizer.ToTitleCaseOrNull(Notas)
                 };
 
                 _context.Pagos.Add(nuevoPago);
@@ -383,7 +388,7 @@ namespace SistemaInstituto.ViewModels
                         IdAlumno = alumno.IdAlumno,
                         Fecha = DateTime.Now,
                         Importe = alumno.MontoArancel,
-                        Concepto = $"Cargo arancel {arancel.Concepto}",
+                        Concepto = TextNormalizer.ToSentenceCase($"Cargo arancel {arancel.Concepto}"),
                         IdPago = nuevoPago.Id
                     };
 
@@ -396,7 +401,7 @@ namespace SistemaInstituto.ViewModels
                     IdAlumno = alumno.IdAlumno,
                     Fecha = DateTime.Now,
                     Importe = -alumno.MontoAPagar,
-                    Concepto = arancel == null ? "Pago año completo" : "Pago recibido",
+                    Concepto = TextNormalizer.ToSentenceCase(arancel == null ? "Pago año completo" : "Pago recibido"),
                     IdPago = nuevoPago.Id
                 };
 

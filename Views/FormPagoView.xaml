@@ -8,7 +8,7 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:FormPagoViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        FontFamily="Bahnschrift"
+        FontFamily="Segoe UI"
         Title="Carga de pago"
         MinWidth="400" MinHeight="650"
         Width="450"

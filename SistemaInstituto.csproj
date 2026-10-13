@@ -7,16 +7,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>database_102857.ico</ApplicationIcon>
+    <Version>26.3.5</Version>
+    <AssemblyVersion>26.3.6</AssemblyVersion>
+    <StartupObject>SistemaInstituto.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\Instituto.sqlite" />
+    <None Remove="logo mandela.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="database_102857.ico" />
-    <Content Include="Data\Instituto.sqlite">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="logo mandela.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -34,6 +37,18 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Velopack" Version="0.0.1298" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\Instituto.sqlite">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
   </ItemGroup>
 
 </Project>

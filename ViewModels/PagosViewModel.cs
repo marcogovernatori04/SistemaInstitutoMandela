@@ -200,7 +200,7 @@ namespace SistemaInstituto.ViewModels
             Cursos = new ObservableCollection<string>(
                 pagosDb.Select(p => p.IdAlumnoNavigation.IdCursoNavigation)
                 .DistinctBy(c => c.Id)
-                .OrderBy(c => c.Id)
+                .OrderBy(c => c.Orden)
                 .Select(c => c.Nombre));
 
             Cursos.Insert(0, "Todos");
@@ -308,7 +308,9 @@ namespace SistemaInstituto.ViewModels
         {
             if (obj is not Pago pago) return;
 
-            string carpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Recibos");
+            var carpeta = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "SistemaInstituto", "Recibos");
 
             var archivos = Directory.GetFiles(carpeta, $"*{pago.Id}*.pdf");
 

@@ -31,7 +31,9 @@ namespace SistemaInstituto.Generators
 
             string nombreAlumno = pago.IdAlumnoNavigation.Nombre.Replace(' ', '_');
 
-            var carpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Recibos");
+            var carpeta = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "SistemaInstituto", "Recibos");
             Directory.CreateDirectory(carpeta);
 
             var ruta = Path.Combine(carpeta, $"Recibo_{pago.Id}_{nombreAlumno}.pdf");
@@ -72,17 +74,26 @@ namespace SistemaInstituto.Generators
 
                 table.AddCell(cellText);
 
-                ImageData logoData = ImageDataFactory.Create("C:/Users/Usuario/source/repos/SistemaInstituto/logo mandela.png");
-                Image logo = new Image(logoData)
-                    .ScaleToFit(100, 100);
+                var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo mandela.png");
 
-                Cell cellLogo = new Cell()
-                    .SetBorder(Border.NO_BORDER)
-                    .Add(logo)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+                if (File.Exists(logoPath))
+                {
+                    ImageData logoData = ImageDataFactory.Create(logoPath);
+                    Image logo = new Image(logoData)
+                        .ScaleToFit(100, 100);
 
-                table.AddCell(cellLogo);
+                    Cell cellLogo = new Cell()
+                        .SetBorder(Border.NO_BORDER)
+                        .Add(logo)
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+                    table.AddCell(cellLogo);
+                }
+                else
+                {
+                    table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+                }
 
                 document.Add(table);
 
@@ -164,15 +175,6 @@ namespace SistemaInstituto.Generators
             }
 
             MessageBox.Show($"Recibo generado: {ruta}");
-
-            if (File.Exists(ruta))
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = ruta,
-                    UseShellExecute = true
-                });
-            }
         }
 
 
@@ -181,7 +183,9 @@ namespace SistemaInstituto.Generators
             if (pagos == null || pagos.Count == 0)
                 throw new ArgumentNullException(nameof(pagos), "La lista de pagos no puede ser null ni vacía.");
 
-            var carpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Recibos");
+            var carpeta = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "SistemaInstituto", "Recibos");
             Directory.CreateDirectory(carpeta);
 
             string nombreBeneficio = pagos
@@ -228,17 +232,26 @@ namespace SistemaInstituto.Generators
 
                 table.AddCell(cellText);
 
-                ImageData logoData = ImageDataFactory.Create("C:/Users/Usuario/source/repos/SistemaInstituto/logo mandela.png");
-                Image logo = new Image(logoData)
-                    .ScaleToFit(100, 100);
+                var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo mandela.png");
 
-                Cell cellLogo = new Cell()
-                    .SetBorder(Border.NO_BORDER)
-                    .Add(logo)
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+                if (File.Exists(logoPath))
+                {
+                    ImageData logoData = ImageDataFactory.Create(logoPath);
+                    Image logo = new Image(logoData)
+                        .ScaleToFit(100, 100);
 
-                table.AddCell(cellLogo);
+                    Cell cellLogo = new Cell()
+                        .SetBorder(Border.NO_BORDER)
+                        .Add(logo)
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+
+                    table.AddCell(cellLogo);
+                }
+                else
+                {
+                    table.AddCell(new Cell().SetBorder(Border.NO_BORDER));
+                }
 
                 document.Add(table);
 
@@ -326,16 +339,7 @@ namespace SistemaInstituto.Generators
                 document.Close();
             }
 
-            MessageBox.Show($"Factura grupal generada: {ruta}");
-
-            if (File.Exists(ruta))
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = ruta,
-                    UseShellExecute = true
-                });
-            }
+            MessageBox.Show($"Recibo grupal generado: {ruta}");
         }
     }
 }

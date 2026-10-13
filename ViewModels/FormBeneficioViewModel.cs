@@ -2,56 +2,33 @@
 using SistemaInstituto.Commands;
 using SistemaInstituto.Data;
 using SistemaInstituto.Models;
+using SistemaInstituto.Utilities;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 using Application = System.Windows.Application;
 
 namespace SistemaInstituto.ViewModels
 {
     class FormBeneficioViewModel : BaseViewModel
     {
-        private readonly InstitutoDbContext _context = new();
-        public ObservableCollection<Alumno> Alumnos { get; set; } = new();
-        public Beneficio? BeneficioGuardado { get; private set; } = null!;
+        private const int MIN_ALUMNOS = 2;
+        private const int MAX_ALUMNOS = 5;
 
-        private Alumno? _alumno1Seleccionado;
-        public Alumno? Alumno1Seleccionado
-        {
-            get => _alumno1Seleccionado;
-            set
-            {
-                _alumno1Seleccionado = value;
-                OnPropertyChanged(nameof(Alumno1Seleccionado));
-                CalcularCuotaMasBarata();
-            }
-        }
 
-        private Alumno? _alumno2Seleccionado;
-        public Alumno? Alumno2Seleccionado
-        {
-            get => _alumno2Seleccionado;
-            set
-            {
-                _alumno2Seleccionado = value;
-                OnPropertyChanged(nameof(Alumno2Seleccionado));
-                CalcularCuotaMasBarata();
-            }
-        }
+        private readonly InstitutoDbContext _context = new(); // base
+        public ObservableCollection<Alumno> Alumnos { get; set; } = new(); // colección de alumnos para los ComboBox
 
-        private Alumno? _alumno3Seleccionado;
-        public Alumno? Alumno3Seleccionado
-        {
-            get => _alumno3Seleccionado;
-            set
-            {
-                _alumno3Seleccionado = value;
-                OnPropertyChanged(nameof(Alumno3Seleccionado));
-                CalcularCuotaMasBarata();
-            }
-        }
+        public ObservableCollection<AlumnoSeleccionItem> AlumnosSeleccionados { get; set; } = new();
 
-        private string _cuotaMasBarata = string.Empty;
+        public ObservableCollection<BeneficiarioInfo> AlumnosConDescuento { get; } = new();
+
+        public Beneficio? BeneficioGuardado { get; private set; } = null!; // propiedad para almacenar el beneficio creado y mostrarlo en la ventana de detalles
+
+        private string _cuotaMasBarata = string.Empty; // propiedad para mostrar el alumno con la cuota más barata y su monto formateado, se actualiza cada vez que se selecciona un alumno o cambia el descuento
         public string CuotaMasBarata
         {
             get => _cuotaMasBarata;
@@ -62,7 +39,7 @@ namespace SistemaInstituto.ViewModels
             }
         }
 
-        private decimal _valorFinalCuota;
+        private decimal _valorFinalCuota; // propiedad para mostrar el valor final de la cuota más barata después de aplicar el descuento, se actualiza cada vez que se selecciona un alumno o cambia el descuento
         public decimal ValorFinalCuota
         {
             get => _valorFinalCuota;
@@ -73,10 +50,17 @@ namespace SistemaInstituto.ViewModels
             }
         }
 
-        public ICommand GuardarCommand { get; }
-        public ICommand ToggleAlumno3Command { get; }
-
-        public string Nombre { get; set; } = null!;
+        private string _nombre = string.Empty;
+        public string Nombre
+        {
+            get => _nombre;
+            set
+            {
+                _nombre = value;
+                OnPropertyChanged(nameof(Nombre));
+                ((RelayCommand)GuardarCommand).RaiseCanExecuteChanged();
+            }
+        }
         private int _descuento { get; set; } = 20;
         public int Descuento
         {
@@ -86,79 +70,169 @@ namespace SistemaInstituto.ViewModels
                 _descuento = value;
                 OnPropertyChanged(nameof(Descuento));
                 CalcularCuotaMasBarata();
+                ((RelayCommand)GuardarCommand).RaiseCanExecuteChanged();
             }
         }
 
-        private bool _mostrarAlumno3;
-        public bool MostrarAlumno3
-        {
-            get => _mostrarAlumno3;
-            set
-            {
-                _mostrarAlumno3 = value;
-                OnPropertyChanged(nameof(MostrarAlumno3));
-                OnPropertyChanged(nameof(TextoBotonAlumno));
-            }
-        }
-        public string TextoBotonAlumno => MostrarAlumno3 ? "➖ Quitar tercer alumno" : "➕ Agregar tercer alumno";
+        public string Titulo => _beneficioEditandoId.HasValue ? "Editar un beneficio" : "Agregar un beneficio";
+
+        public bool PuedeAgregarAlumno => AlumnosSeleccionados.Count < MAX_ALUMNOS;
+
+        private readonly int? _beneficioEditandoId;
+
+        public ICommand GuardarCommand { get; }
+        public ICommand AgregarAlumnoCommand { get; }
+        public ICommand QuitarAlumnoCommand { get; }
 
 
         public FormBeneficioViewModel()
         {
             var alumnosDb = _context.Alumnos.
-                Include(a => a.IdCursoNavigation).AsNoTracking().OrderBy(a => a.Nombre).ToList();
+                Include(a => a.IdCursoNavigation).AsNoTracking().OrderBy(a => a.Nombre).ToList(); // traigo los alumnos con su curso para mostrar el nombre del curso en el ComboBox y calcular la cuota más barata, uso AsNoTracking porque no voy a modificar los alumnos
 
             Alumnos = new ObservableCollection<Alumno>(alumnosDb);
 
-            ToggleAlumno3Command = new RelayCommand(_ => MostrarAlumno3 = !MostrarAlumno3);
-            GuardarCommand = new RelayCommand(GuardarBeneficio);
+            for (int i = 0; i < MIN_ALUMNOS; i++)
+                AgregarSlot();
+
+            AgregarAlumnoCommand = new RelayCommand(_ => AgregarSlot(), _ => PuedeAgregarAlumno);
+            QuitarAlumnoCommand = new RelayCommand(
+                param => QuitarSlot(param as AlumnoSeleccionItem),
+                param => PuedeQuitarSlot(param as AlumnoSeleccionItem)
+                );
+
+            GuardarCommand = new RelayCommand(GuardarBeneficio, _ => PuedeGuardar());
         }
+
+        public FormBeneficioViewModel(Beneficio beneficioExistente) : this()
+        {
+            _beneficioEditandoId = beneficioExistente.Id;
+            Nombre = beneficioExistente.Nombre;
+            Descuento = beneficioExistente.Descuento;
+
+            var alumnosBeneficio = _context.AlumnosBeneficios
+                .Where(ab => ab.IdBeneficio == beneficioExistente.Id)
+                .Include(ab => ab.IdAlumnoNavigation)
+                    .ThenInclude(a => a.IdCursoNavigation)
+                .AsNoTracking()
+                .ToList();
+
+            AlumnosSeleccionados.Clear();
+
+            foreach (var ab in alumnosBeneficio)
+            {
+                var item = new AlumnoSeleccionItem
+                {
+                    AlumnoSeleccionado = ab.IdAlumnoNavigation,
+                    EsEliminable = alumnosBeneficio.Count > MIN_ALUMNOS,
+                    AplicaDescuento = ab.AplicaDescuento,
+                    Numero = AlumnosSeleccionados.Count + 1,
+                    AplicaDescuentoManual = true
+                };
+                item.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(AlumnoSeleccionItem.AlumnoSeleccionado) || e.PropertyName == nameof(AlumnoSeleccionItem.AplicaDescuento))
+                    {
+                        CalcularCuotaMasBarata();
+                        ((RelayCommand)GuardarCommand).RaiseCanExecuteChanged();
+                    }
+                };
+                AlumnosSeleccionados.Add(item);
+            }
+
+            CalcularCuotaMasBarata();
+            OnPropertyChanged(nameof(PuedeAgregarAlumno));
+
+        }
+
+        private void AgregarSlot()
+        {
+            if (AlumnosSeleccionados.Count >= MAX_ALUMNOS)
+                return;
+
+            var item = new AlumnoSeleccionItem { EsEliminable = AlumnosSeleccionados.Count >= MIN_ALUMNOS, Numero = AlumnosSeleccionados.Count + 1 };
+
+            item.PropertyChanged += (s, e) => // me suscribo al evento PropertyChanged de cada item de selección de alumno para recalcular la cuota más barata cada vez que se selecciona un alumno diferente en el ComboBox, verificando que la propiedad que cambió sea AlumnoSeleccionado antes de llamar a CalcularCuotaMasBarata, ya que solo me interesa recalcular la cuota cuando cambia el alumno seleccionado y no por otros cambios en la interfaz
+            {
+                if (e.PropertyName == nameof(AlumnoSeleccionItem.AlumnoSeleccionado) || e.PropertyName == nameof(AlumnoSeleccionItem.AplicaDescuento))
+                {
+                    CalcularCuotaMasBarata();
+                    ((RelayCommand)GuardarCommand).RaiseCanExecuteChanged();
+                }
+            };
+
+            AlumnosSeleccionados.Add(item);
+            OnPropertyChanged(nameof(PuedeAgregarAlumno));
+
+        }
+
+        private bool PuedeQuitarSlot(AlumnoSeleccionItem? item)
+        {
+            return item != null && item.EsEliminable;
+        }
+
+        private void QuitarSlot(AlumnoSeleccionItem? item)
+        {
+            if (item == null || !item.EsEliminable)
+                return;
+            AlumnosSeleccionados.Remove(item);
+            CalcularCuotaMasBarata();
+            OnPropertyChanged(nameof(PuedeAgregarAlumno));
+            ((RelayCommand)GuardarCommand).RaiseCanExecuteChanged();
+        }
+
+
+        private bool _calculando = false;
 
         private void CalcularCuotaMasBarata()
         {
-            var alumnosSeleccionados = new List<(Alumno alumno, decimal cuota)>();
+            if (_calculando) return;
+            _calculando = true;
 
-            if (Alumno1Seleccionado != null)
+            try
             {
-                alumnosSeleccionados.Add((Alumno1Seleccionado, ObtenerArancelMasBarato(Alumno1Seleccionado.IdCurso)));
-            }
-            if (Alumno2Seleccionado != null)
-            {
-                alumnosSeleccionados.Add((Alumno2Seleccionado, ObtenerArancelMasBarato(Alumno2Seleccionado.IdCurso)));
-            }
-            if (Alumno3Seleccionado != null)
-            {
-                alumnosSeleccionados.Add((Alumno3Seleccionado, ObtenerArancelMasBarato(Alumno3Seleccionado.IdCurso)));
-            }
+                var alumnosConCuota = AlumnosSeleccionados
+                    .Where(i => i.AlumnoSeleccionado != null)
+                    .Select(i => (item: i, alumno: i.AlumnoSeleccionado!, cuota: ObtenerArancelMasBarato(i.AlumnoSeleccionado!.IdCurso)))
+                    .ToList();
 
-            if (alumnosSeleccionados.Any())
-            {
-                var menor = alumnosSeleccionados.OrderBy(c => c.cuota).First();
-                CuotaMasBarata = $"{menor.alumno.Nombre} - {menor.cuota:C}";
+                if (alumnosConCuota.Any())
+                {
+                    var menor = alumnosConCuota.OrderBy(c => c.cuota).First();
+                    var factor = 1m - (Math.Clamp(Descuento, 0, 100) / 100m); // variable local, no propiedad
 
-                if (menor.alumno.IdCursoNavigation.Beneficio)
+                    var montoMinimo = alumnosConCuota.Min(c => c.cuota);
+                    foreach (var entry in alumnosConCuota)
+                    {
+                        if (!entry.item.AplicaDescuentoManual)
+                            entry.item.SetAplicaDescuentoAutomatico(entry.cuota == montoMinimo && entry.alumno.IdCursoNavigation.Beneficio); // si el alumno no tiene el descuento aplicado manualmente, se lo aplico automáticamente solo si su cuota es igual a la cuota más barata y su curso admite beneficio, de lo contrario se lo quito automáticamente
+                    }
+                }
+
+                AlumnosConDescuento.Clear();
+                foreach (var entry in alumnosConCuota.Where(e => e.item.AplicaDescuento && e.alumno.IdCursoNavigation.Beneficio))
                 {
                     var factor = 1m - (Math.Clamp(Descuento, 0, 100) / 100m);
-                    ValorFinalCuota = Math.Round(menor.cuota * factor, 2);
+                    var valorFinal = Math.Round(entry.cuota * factor, 2);
+                    AlumnosConDescuento.Add(new BeneficiarioInfo
+                    {
+                        NombreYCuota = $"{entry.alumno.Nombre} - {entry.cuota:C}",
+                        ValorFinal = valorFinal
+                    });
                 }
-                else
-                {
-                    ValorFinalCuota = menor.cuota;
-                }
-
             }
-            else
+            finally
             {
-                CuotaMasBarata = "N/A";
-                ValorFinalCuota = 0;
+                _calculando = false;
             }
+
         }
 
         private decimal ObtenerArancelMasBarato(int idCurso)
         {
             var hoy = DateOnly.FromDateTime(DateTime.Today);
 
-            decimal? monto = _context.Aranceles
+            decimal? monto = _context.Aranceles // obtengo el monto del arancel más barato para el curso dado, filtrando por vigencia y ordenando por monto, luego tomo el primer resultado o null si no hay resultados
                 .Where(ar => ar.IdCurso == idCurso)
                 .Where(ar => ar.VigenciaDesde <= hoy &&
                              (ar.VigenciaHasta == null || ar.VigenciaHasta >= hoy))
@@ -169,59 +243,132 @@ namespace SistemaInstituto.ViewModels
 
         private bool PuedeGuardar()
         {
-            var cantAlumnos = new[] { Alumno1Seleccionado, Alumno2Seleccionado, Alumno3Seleccionado }
-                .Count(a => a != null);
+            var cantAlumnos = AlumnosSeleccionados.Count(i => i.AlumnoSeleccionado != null);
             return !string.IsNullOrWhiteSpace(Nombre)
                 && Descuento >= 0
                 && Descuento <= 100
-                && cantAlumnos >= 2;
+                && cantAlumnos >= MIN_ALUMNOS;
         }
 
         private void GuardarBeneficio(object? obj)
         {
-            if (!PuedeGuardar())
-                return;
+            if (!PuedeGuardar()) return;
 
-            var nuevoBeneficio = new Beneficio
+            Beneficio beneficio;
+
+            if (_beneficioEditandoId.HasValue)
             {
-                Nombre = Nombre,
-                FechaCreacion = DateOnly.FromDateTime(DateTime.Today),
-                Activo = true,
-                Descuento = Descuento
-            };
-            _context.Beneficios.Add(nuevoBeneficio);
-            _context.SaveChanges();
+                // Modo edición
+                beneficio = _context.Beneficios.Find(_beneficioEditandoId.Value)!;
+                beneficio.Nombre = TextNormalizer.ToTitleCase(Nombre);
+                beneficio.Descuento = Descuento;
 
-            var alumnosIds = new List<int>();
-            if (Alumno1Seleccionado != null)
-                alumnosIds.Add(Alumno1Seleccionado.Id);
-            if (Alumno2Seleccionado != null)
-                alumnosIds.Add(Alumno2Seleccionado.Id);
-            if (MostrarAlumno3 && Alumno3Seleccionado != null)
-                alumnosIds.Add(Alumno3Seleccionado.Id);
-
-            foreach (var id in alumnosIds.Distinct())
-            {
-                _context.AlumnosBeneficios.Add(new AlumnosBeneficio
-                {
-                    IdAlumno = id,
-                    IdBeneficio = nuevoBeneficio.Id
-                });
-            }
-            _context.SaveChanges();
-
-            BeneficioGuardado = nuevoBeneficio;
-
-            var ventana = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.DataContext == this);
-            if (ventana != null)
-            {
-                ventana.DialogResult = true;
-                ventana.Close();
+                // Eliminar relaciones anteriores y recrearlas
+                var anteriores = _context.AlumnosBeneficios
+                    .Where(ab => ab.IdBeneficio == _beneficioEditandoId.Value)
+                    .ToList();
+                _context.AlumnosBeneficios.RemoveRange(anteriores);
             }
             else
             {
-                MessageBox.Show("No se pudo cerrar la ventana correctamente.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Modo creación
+                beneficio = new Beneficio
+                {
+                    Nombre = TextNormalizer.ToTitleCase(Nombre),
+                    FechaCreacion = DateOnly.FromDateTime(DateTime.Today),
+                    Activo = true,
+                    Descuento = Descuento
+                };
+                _context.Beneficios.Add(beneficio);
             }
+
+            _context.SaveChanges();
+
+            var itemsValidos = AlumnosSeleccionados.Where(i => i.AlumnoSeleccionado != null).ToList();
+            foreach (var item in itemsValidos)
+            {
+                _context.AlumnosBeneficios.Add(new AlumnosBeneficio
+                {
+                    IdAlumno = item.AlumnoSeleccionado!.Id,
+                    IdBeneficio = beneficio.Id,
+                    AplicaDescuento = item.AplicaDescuento
+                });
+            }
+
+            var confirm = MessageBox.Show("¿Guardar cambios del beneficio?", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            _context.SaveChanges();
+            BeneficioGuardado = beneficio;
+
+            var ventana = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.DataContext == this);
+            if (ventana != null) { ventana.DialogResult = true; ventana.Close(); }
+            else MessageBox.Show("No se pudo cerrar la ventana correctamente.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    public class AlumnoSeleccionItem : BaseViewModel
+    {
+        private Alumno? _alumnoSeleccionado;
+        public Alumno? AlumnoSeleccionado
+        {
+            get => _alumnoSeleccionado;
+            set
+            {
+                _alumnoSeleccionado = value;
+                OnPropertyChanged(nameof(AlumnoSeleccionado));
+                OnPropertyChanged(nameof(NombreCurso));
+                OnPropertyChanged(nameof(TextoComboBox));
+                OnPropertyChanged(nameof(TieneAlumno));
+                OnPropertyChanged(nameof(CursoAdmiteDescuento));
+            }
+        }
+            
+        public string TextoComboBox
+        {
+            get => AlumnoSeleccionado?.Nombre ?? string.Empty;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    AlumnoSeleccionado = null;
+            }
+        }
+
+        private bool _aplicaDescuento = true;
+        public bool AplicaDescuento
+        {
+            get => _aplicaDescuento;
+            set
+            {
+                _aplicaDescuento = value;
+                AplicaDescuentoManual = true;
+                OnPropertyChanged(nameof(AplicaDescuento));
+            }
+        }
+
+        public void SetAplicaDescuentoAutomatico(bool value) // método para establecer el valor de AplicaDescuento sin marcarlo como aplicado manualmente, se usa para aplicar o quitar el descuento automáticamente al alumno con la cuota más barata, sin afectar a los alumnos que ya tienen el descuento aplicado manualmente
+        {
+            if (_aplicaDescuento == value) return;
+            _aplicaDescuento = value;
+            OnPropertyChanged(nameof(AplicaDescuento));
+
+        }
+
+        public bool AplicaDescuentoManual { get; set; } = false;
+        public bool CursoAdmiteDescuento => AlumnoSeleccionado?.IdCursoNavigation?.Beneficio ?? false;
+
+        public bool TieneAlumno => AlumnoSeleccionado != null;  
+        public string NombreCurso => AlumnoSeleccionado?.IdCursoNavigation.Nombre ?? string.Empty; // propiedad calculada para mostrar el nombre del curso del alumno seleccionado en el ComboBox, o un texto por defecto si no hay un alumno seleccionado
+
+        public bool EsEliminable { get; set; }
+        public int Numero { get; set; } 
+    }
+
+    public class BeneficiarioInfo
+    {
+        public string NombreYCuota { get; set; } = string.Empty;
+        public decimal ValorFinal { get; set; }
+    }
+
 }
