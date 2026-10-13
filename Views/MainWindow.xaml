@@ -107,7 +107,7 @@
 
                 <!-- Versión -->
                 <TextBlock Grid.Row="2"
-                           Text="v26.3.6"
+                           Text="v26.4"
                            Foreground="White"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Bottom"
