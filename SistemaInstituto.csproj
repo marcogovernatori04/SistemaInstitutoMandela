@@ -7,8 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>database_102857.ico</ApplicationIcon>
-    <Version>26.3.5</Version>
-    <AssemblyVersion>26.3.6</AssemblyVersion>
+    <Version>26.4</Version>
+    <AssemblyVersion>26.4</AssemblyVersion>
     <StartupObject>SistemaInstituto.Program</StartupObject>
   </PropertyGroup>
 
